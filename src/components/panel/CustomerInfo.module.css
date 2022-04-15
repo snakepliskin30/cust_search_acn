@@ -1,0 +1,85 @@
+.main {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  row-gap: 20px;
+  align-items: flex-end;
+  grid-template-areas:
+    "a b b b c c c d d d e z"
+    "f f f g g g h h h i i i"
+    "j j j j . . . . . . . ."
+    "k k k k k k l l l m m m"
+    "n n n n . . . . . . . ."
+    "o o o o o o p p p p p p"
+    ". . . . . . . . q q q q";
+}
+
+.item_a {
+  grid-area: a;
+}
+
+.item_b {
+  grid-area: b;
+}
+
+.item_c {
+  grid-area: c;
+}
+
+.item_d {
+  grid-area: d;
+}
+
+.item_e {
+  grid-area: e;
+}
+
+.item_f {
+  grid-area: f;
+}
+
+.item_g {
+  grid-area: g;
+}
+
+.item_h {
+  grid-area: h;
+}
+
+.item_i {
+  grid-area: i;
+}
+
+.item_j {
+  grid-area: j;
+}
+
+.item_k {
+  grid-area: k;
+}
+
+.item_l {
+  grid-area: l;
+}
+
+.item_m {
+  grid-area: m;
+}
+
+.item_n {
+  grid-area: n;
+}
+
+.item_o {
+  grid-area: o;
+}
+
+.item_p {
+  grid-area: p;
+}
+
+.item_q {
+  grid-area: q;
+  margin-left: auto;
+}

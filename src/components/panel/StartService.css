@@ -1,0 +1,24 @@
+html,
+body {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox input {
+  width: auto;
+}
+
+.checkbox label {
+  font-weight: bold;
+}
+
+.btnGrp {
+  display: flex;
+  gap: 20px;
+}

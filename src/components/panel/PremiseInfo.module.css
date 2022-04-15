@@ -1,0 +1,36 @@
+.main {
+  /* display: grid;
+  grid-template-columns: repeat(6, 1fr); */
+  padding: 20px;
+}
+
+.main > * {
+  margin-bottom: 30px;
+}
+
+.searchForm {
+  display: flex;
+  gap: 30px;
+  align-items: flex-end;
+}
+
+.searchForm > * {
+  flex: 1 1 100%;
+}
+
+.premiseInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.premiseInfoDetails {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.resultsrow:hover {
+  cursor: pointer;
+  background-color: #e3e3e3 !important;
+}
