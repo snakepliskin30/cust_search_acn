@@ -20,6 +20,7 @@ const SearchContextMenu = (props) => {
       transformOrigin: "top left",
       position: "fixed",
       transition: "transform 0.2s ease-in-out",
+      boxShadow: "3px 3px 8px 0px rgba(0, 0, 0, 0.5)",
     };
   };
   return (

@@ -169,7 +169,16 @@ const SearchForm = (props) => {
         setStreetInvalid(false);
       }
     }
-
+    if (
+      !ssntin &&
+      !accountNumber &&
+      !phone &&
+      !firstName &&
+      !lastName &&
+      !street
+    ) {
+      ++fieldsInvalid;
+    }
     return fieldsInvalid === 0;
   };
 
