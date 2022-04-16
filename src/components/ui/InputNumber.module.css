@@ -6,6 +6,7 @@ input::-webkit-inner-spin-button {
 
 input {
   padding: 5px;
+  border: 1px solid #888;
 }
 
 input:focus {
@@ -14,4 +15,11 @@ input:focus {
 
 .label {
   font-weight: bold;
+}
+
+.error {
+  height: 20px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #da3142;
 }

@@ -15,6 +15,9 @@ const InputDatePicker = (props) => {
         {props.label}
       </div>
       <input id={props.id} type={props.type ? props.type : "text"} />
+      <div className={classes.error}>
+        {props.invalid && props.invalidMessage}
+      </div>
     </div>
   );
 };

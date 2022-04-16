@@ -16,7 +16,11 @@ const InputNumber = (props) => {
         onChange={(e) => {
           props.onChange(e.target.value);
         }}
+        disabled={props.disabled}
       />
+      <div className={classes.error}>
+        {props.invalid && props.invalidMessage}
+      </div>
     </div>
   );
 };

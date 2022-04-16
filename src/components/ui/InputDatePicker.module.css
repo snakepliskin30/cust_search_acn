@@ -16,3 +16,10 @@ input:focus {
 .label {
   font-weight: bold;
 }
+
+.error {
+  height: 20px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #da3142;
+}

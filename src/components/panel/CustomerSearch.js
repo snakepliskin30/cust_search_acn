@@ -12,8 +12,7 @@ const CustomerSearch = (props) => {
   const [searchResult, setSearchResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const searchAddressHander = async (e) => {
-    e.preventDefault();
+  const searchAddressHander = async (params) => {
     setIsLoading(true);
     const response = await fetch("https://fakestoreapi.com/products");
     const data = await response.json();
