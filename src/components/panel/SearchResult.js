@@ -1,20 +1,44 @@
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import SearchContextMenu from "../layout/SearchContextMenu";
 
 //Datatable Modules
 import "jquery/dist/jquery.min.js";
 import "datatables.net/js/jquery.dataTables";
-import "datatables.net-dt/css/jquery.dataTables.css";
 import "datatables.net-rowgroup/js/dataTables.rowGroup.min.js";
 import $ from "jquery";
 
+import "datatables.net-dt/css/jquery.dataTables.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+import useSearchResultRightClickMenu from "../../hooks/useSearchResultRightClickMenu";
+
 import classes from "./SearchResult.module.css";
 
 const SearchResult = (props) => {
-  let collapsedGroups = {};
+  const [selectedRow, setSelectedRow] = useState("");
+  const [xLoc, setXLoc] = useState(0);
+  const [yLoc, setYLoc] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const hideContextMenu = () => {
+    setShowMenu(false);
+  };
+
+  const contextMenuHandler = (e) => {
+    e.preventDefault();
+    e.clientX + 200 > window.innerWidth
+      ? setXLoc(window.innerWidth - 210)
+      : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight
+      ? setYLoc(window.innerHeight - 70)
+      : setYLoc(e.clientY - 10);
+    setSelectedRow(e.target.closest("tr").dataset.rowInfo);
+    setShowMenu(true);
+  };
 
   const buildSearchTable = () => {
-    const oTable = $("#example").DataTable({
+    let collapsedGroups = {};
+    const oTable = $("#searchResultTable").DataTable({
       destroy: true,
       paging: false,
       bFilter: false,
@@ -46,7 +70,7 @@ const SearchResult = (props) => {
       },
     });
 
-    $("#example tbody").on("click", "tr.dtrg-start", function () {
+    $("#searchResultTable tbody").on("click", "tr.dtrg-start", function () {
       const name = $(this).data("name");
       collapsedGroups[name] = !collapsedGroups[name];
       oTable.draw(false);
@@ -54,34 +78,58 @@ const SearchResult = (props) => {
   };
 
   useEffect(() => {
-    buildSearchTable();
-  }, []);
+    if (props.searchResult.length > 0) {
+      buildSearchTable();
 
+      const rows = document.querySelectorAll("tr:not(.dtrg-start)");
+      rows.forEach((e) => {
+        e.addEventListener("contextmenu", contextMenuHandler);
+      });
+
+      return () => {
+        const oldRows = document.querySelectorAll("tr:not(.dtrg-start)");
+        rows.forEach((e) => {
+          e.removeEventListener("contextmenu", contextMenuHandler);
+        });
+      };
+    }
+  }, [props.searchResult]);
+
+  if (props.searchResult.length === 0) return <div>No Result</div>;
   return (
-    <div className={classes.main}>
-      <table id="example" className="table table-striped">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Price</th>
-            <th>Rating</th>
-            <th>Count</th>
-            <th className="d-none">Category</th>
-          </tr>
-        </thead>
-        <tbody>
-          {props.searchResult.map((result) => (
-            <tr key={result.id}>
-              <td>{result.title}</td>
-              <td>{`$${result.price}`}</td>
-              <td>{result.rating.rate}</td>
-              <td>{result.rating.count}</td>
-              <td className="d-none">{result.category}</td>
+    <Fragment>
+      <div className={classes.main}>
+        <table id="searchResultTable" className="table table-striped w-100">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Rating</th>
+              <th>Count</th>
+              <th className="d-none">Category</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {props.searchResult.map((result) => (
+              <tr key={result.id} data-row-info={JSON.stringify(result)}>
+                <td>{result.title}</td>
+                <td>{`$${result.price}`}</td>
+                <td>{result.rating.rate}</td>
+                <td>{result.rating.count}</td>
+                <td className="d-none">{result.category}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SearchContextMenu
+        xLoc={xLoc}
+        yLoc={yLoc}
+        selectedRow={selectedRow}
+        showMenu={showMenu}
+        onMouseLeave={hideContextMenu}
+      />
+    </Fragment>
   );
 };
 

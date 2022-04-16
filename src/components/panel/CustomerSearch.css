@@ -1,3 +1,7 @@
+.searchMain {
+  position: relative;
+}
+
 .checkbox {
   display: flex;
   align-items: center;

@@ -10,7 +10,7 @@ const Accordion = (props) => {
     : `${classes.header} ${headerId}`;
 
   return (
-    <div className={classes.accordion}>
+    <div className={classes.accordion} id={props.id}>
       <button className={iconPosition} onClick={props.onClick}>
         {props.title}
       </button>
