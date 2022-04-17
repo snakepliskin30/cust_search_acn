@@ -1,24 +1,19 @@
-import React, { Fragment, useCallback, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import Accordion from "../layout/Accordion";
 import SearchForm from "./SearchForm";
 import SearchResult from "./SearchResult";
 import Spinner from "../ui/Spinner";
+import { useSearchHook } from "../../hooks/useSearchHook";
 
 import "./CustomerSearch.css";
 
 const CustomerSearch = (props) => {
   const [showForm, setShowForm] = useState(true);
   const [showResult, setShowResult] = useState(false);
-  const [searchResult, setSearchResult] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, searchResult, search } = useSearchHook();
 
   const searchAddressHander = async (params) => {
-    setIsLoading(true);
-    const response = await fetch("https://fakestoreapi.com/products");
-    const data = await response.json();
-    setSearchResult(data);
-    setShowResult(true);
-    setIsLoading(false);
+    search(params);
   };
 
   const showResultHandler = useCallback(() => {
@@ -28,6 +23,13 @@ const CustomerSearch = (props) => {
   const showFormtHandler = useCallback(() => {
     setShowForm((current) => !current);
   }, []);
+
+  useEffect(() => {
+    if (searchResult.length > 0) {
+      setShowResult(true);
+    }
+  }, [searchResult]);
+
   return (
     <Fragment>
       {isLoading && <Spinner />}

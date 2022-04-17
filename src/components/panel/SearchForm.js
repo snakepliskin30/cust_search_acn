@@ -122,7 +122,19 @@ const SearchForm = (props) => {
 
   const submitFormHandler = (e) => {
     e.preventDefault();
-    if (validateFields()) props.onSubmit(e);
+    if (validateFields())
+      props.onSubmit({
+        ssntin,
+        accountNumber,
+        phone,
+        firstName,
+        middleName,
+        lastName,
+        street,
+        city,
+        state,
+        zip,
+      });
   };
 
   const validateFields = () => {

@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import SearchContextMenu from "../layout/SearchContextMenu";
+import ButtonCancel from "../ui/ButtonCancel";
 
 //Datatable Modules
 import "jquery/dist/jquery.min.js";
@@ -10,8 +11,6 @@ import $ from "jquery";
 import "datatables.net-dt/css/jquery.dataTables.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import useSearchResultRightClickMenu from "../../hooks/useSearchResultRightClickMenu";
-
 import classes from "./SearchResult.module.css";
 
 const SearchResult = (props) => {
@@ -19,12 +18,14 @@ const SearchResult = (props) => {
   const [xLoc, setXLoc] = useState(0);
   const [yLoc, setYLoc] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
+  const [expandAll, setExpandAll] = useState(true);
 
   const hideContextMenu = () => {
     setShowMenu(false);
   };
 
   const contextMenuHandler = (e) => {
+    console.log("context");
     e.preventDefault();
     e.clientX + 200 > window.innerWidth
       ? setXLoc(window.innerWidth - 210)
@@ -36,7 +37,7 @@ const SearchResult = (props) => {
     setShowMenu(true);
   };
 
-  const buildSearchTable = () => {
+  const buildSearchTable = useCallback(() => {
     let collapsedGroups = {};
     const oTable = $("#searchResultTable").DataTable({
       destroy: true,
@@ -51,8 +52,13 @@ const SearchResult = (props) => {
         // Uses the 'row group' plugin
         dataSrc: 4,
         startRender: function (rows, group) {
+          let collapsed;
           // var collapsed = !!collapsedGroups[group]; // default to collapse all; original code
-          const collapsed = !collapsedGroups[group]; // default to expand all
+          if (expandAll) {
+            collapsed = !collapsedGroups[group]; // default to expand all
+          } else {
+            collapsed = !!collapsedGroups[group];
+          }
 
           rows.nodes().each(function (r) {
             r.style.display = "none";
@@ -60,7 +66,6 @@ const SearchResult = (props) => {
               r.style.display = "";
             }
           });
-
           // Add category name to the <tr>. NOTE: Hardcoded colspan
           return $("<tr/>")
             .append('<td colspan="8">' + group + " (" + rows.count() + ")</td>")
@@ -75,6 +80,10 @@ const SearchResult = (props) => {
       collapsedGroups[name] = !collapsedGroups[name];
       oTable.draw(false);
     });
+  }, [expandAll]);
+
+  const expandAllHandler = () => {
+    setExpandAll((current) => !current);
   };
 
   useEffect(() => {
@@ -93,12 +102,19 @@ const SearchResult = (props) => {
         });
       };
     }
-  }, [props.searchResult]);
+  }, [props.searchResult, buildSearchTable]);
+
+  useEffect(() => {
+    buildSearchTable();
+  }, [expandAll, buildSearchTable]);
 
   if (props.searchResult.length === 0) return <div>No Result</div>;
   return (
     <Fragment>
       <div className={classes.main}>
+        <ButtonCancel onClick={expandAllHandler}>
+          Expand All/Collapse All
+        </ButtonCancel>
         <table id="searchResultTable" className="table table-striped w-100">
           <thead>
             <tr>
