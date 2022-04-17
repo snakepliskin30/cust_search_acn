@@ -1,0 +1,25 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input {
+  padding: 5px;
+  border: 1px solid #888;
+}
+
+input:focus {
+  outline: none;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.error {
+  height: 20px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #da3142;
+}

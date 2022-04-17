@@ -1,0 +1,14 @@
+.main {
+  padding: 20px;
+  width: 100%;
+}
+
+tr[data-name] {
+  background-color: rgba(180, 180, 180, 0.6) !important;
+  --bs-table-striped-bg: rgba(0, 0, 0, 0) !important;
+}
+
+tr[data-name]:hover {
+  background-color: rgba(180, 180, 180, 0.9) !important;
+  cursor: pointer;
+}
