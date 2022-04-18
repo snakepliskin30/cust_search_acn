@@ -78,28 +78,8 @@ const SearchForm = (props) => {
     if (city) setEnableDisable("street", "city", "zip");
     // if (state) setEnableDisable("street", "city", "state", "zip");
     if (zip) setEnableDisable("street", "city", "zip");
-    if (
-      !ssntin &&
-      !accountNumber &&
-      !phone &&
-      !firstName &&
-      !middleName &&
-      !lastName &&
-      !street &&
-      !city &&
-      !zip
-    ) {
-      setEnableDisable(
-        "ssntin",
-        "accountNumber",
-        "phone",
-        "firstName",
-        "middleName",
-        "lastName",
-        "street",
-        "city",
-        "zip"
-      );
+    if (!ssntin && !accountNumber && !phone && !firstName && !middleName && !lastName && !street && !city && !zip) {
+      setEnableDisable("ssntin", "accountNumber", "phone", "firstName", "middleName", "lastName", "street", "city", "zip");
       setSSNInvalid(false);
       setAccountNumberInvalid(false);
       setPhoneInvalid(false);
@@ -107,18 +87,7 @@ const SearchForm = (props) => {
       setLastNameInvalid(false);
       setStreetInvalid(false);
     }
-  }, [
-    ssntin,
-    accountNumber,
-    phone,
-    firstName,
-    middleName,
-    lastName,
-    street,
-    city,
-    state,
-    zip,
-  ]);
+  }, [ssntin, accountNumber, phone, firstName, middleName, lastName, street, city, state, zip]);
 
   const submitFormHandler = (e) => {
     e.preventDefault();
@@ -181,14 +150,7 @@ const SearchForm = (props) => {
         setStreetInvalid(false);
       }
     }
-    if (
-      !ssntin &&
-      !accountNumber &&
-      !phone &&
-      !firstName &&
-      !lastName &&
-      !street
-    ) {
+    if (!ssntin && !accountNumber && !phone && !firstName && !lastName && !street) {
       ++fieldsInvalid;
     }
     return fieldsInvalid === 0;
@@ -213,7 +175,7 @@ const SearchForm = (props) => {
   };
 
   return (
-    <form className={classes.main} onSubmit={submitFormHandler}>
+    <form className={classes.main} onSubmit={submitFormHandler} autocomplete="off">
       <div className={classes.mainForm}>
         <div className={classes.custinfoform}>
           <InputNumber
@@ -227,16 +189,6 @@ const SearchForm = (props) => {
             invalidMessage="SSN format xxx-xx-xxxx"
           />
           <InputNumber
-            label="Account Number"
-            id="accoutNumber"
-            options={{ blocks: [5, 5], delimiter: "-" }}
-            value={accountNumber}
-            onChange={setAccountNumber}
-            disabled={accountNumberRO}
-            invalid={accountNumberInvalid}
-            invalidMessage="Account Number format xxxxx-xxxxx"
-          />
-          <InputNumber
             label="Phone"
             id="phoneNumber"
             options={{ blocks: [3, 3, 4], delimiter: "-" }}
@@ -246,72 +198,33 @@ const SearchForm = (props) => {
             invalid={phoneInvalid}
             invalidMessage="Phone format xxx-xxx-xxxx"
           />
-          <Input
-            label="First Name"
-            id="fname"
-            value={firstName}
-            onChange={setFirstName}
-            disabled={firstNameRO}
-            invalid={firstNameInvalid}
-            invalidMessage="First Name is a required field"
+          <InputNumber
+            label="Account Number"
+            id="accoutNumber"
+            options={{ blocks: [5, 5], delimiter: "-" }}
+            value={accountNumber}
+            onChange={setAccountNumber}
+            disabled={accountNumberRO}
+            invalid={accountNumberInvalid}
+            invalidMessage="Account Number format xxxxx-xxxxx"
           />
-          <Input
-            label="Middle Name"
-            id="mname"
-            value={middleName}
-            onChange={setMiddleName}
-            disabled={middleNameRO}
-          />
-          <Input
-            label="Last Name"
-            id="lname"
-            value={lastName}
-            onChange={setLastName}
-            disabled={lastNameRO}
-            invalid={lastNameInvalid}
-            invalidMessage="Last Name is a required field"
-          />
+          <Input label="First Name" id="fname" value={firstName} onChange={setFirstName} disabled={firstNameRO} invalid={firstNameInvalid} invalidMessage="First Name is a required field" />
+          <Input label="Middle Name" id="mname" value={middleName} onChange={setMiddleName} disabled={middleNameRO} />
+          <Input label="Last Name" id="lname" value={lastName} onChange={setLastName} disabled={lastNameRO} invalid={lastNameInvalid} invalidMessage="Last Name is a required field" />
         </div>
         <div className={classes.vertbar}></div>
         <div className={classes.premiseinfoform}>
           <div className={classes.premiseField}>
-            <Input
-              label="Street Address"
-              id="streetAddress"
-              value={street}
-              onChange={setStreet}
-              disabled={streetRO}
-              invalid={streetInvalid}
-              invalidMessage="Street Address is a required field"
-            />
+            <Input label="Street Address" id="streetAddress" value={street} onChange={setStreet} disabled={streetRO} invalid={streetInvalid} invalidMessage="Street Address is a required field" />
           </div>
-          <Input
-            label="City"
-            id="city"
-            value={city}
-            onChange={setCity}
-            disabled={cityRO}
-          />
-          <Input
-            label="State"
-            id="state"
-            value={state}
-            onChange={setState}
-            disabled={stateRO}
-          />
-          <InputNumber
-            label="Zip"
-            id="zip"
-            options={{ blocks: [4] }}
-            value={zip}
-            onChange={setZip}
-            disabled={zipRO}
-          />
+          <Input label="City" id="city" value={city} onChange={setCity} disabled={cityRO} />
+          <Input label="State" id="state" value={state} onChange={setState} disabled={stateRO} />
+          <InputNumber label="Zip" id="zip" options={{ blocks: [4] }} value={zip} onChange={setZip} disabled={zipRO} />
         </div>
       </div>
       <div className="btnGrp">
-        <ButtonSubmit>Search</ButtonSubmit>
         <ButtonCancel onClick={clearFormHandler}>Clear</ButtonCancel>
+        <ButtonSubmit>Search</ButtonSubmit>
       </div>
     </form>
   );

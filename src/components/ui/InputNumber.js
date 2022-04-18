@@ -17,10 +17,9 @@ const InputNumber = (props) => {
           props.onChange(e.target.value);
         }}
         disabled={props.disabled}
+        autocomplete="off"
       />
-      <div className={classes.error}>
-        {props.invalid && props.invalidMessage}
-      </div>
+      <div className={classes.error}>{props.invalid && props.invalidMessage}</div>
     </div>
   );
 };

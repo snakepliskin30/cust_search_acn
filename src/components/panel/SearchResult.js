@@ -27,12 +27,8 @@ const SearchResult = (props) => {
   const contextMenuHandler = (e) => {
     console.log("context");
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth
-      ? setXLoc(window.innerWidth - 210)
-      : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight
-      ? setYLoc(window.innerHeight - 70)
-      : setYLoc(e.clientY - 10);
+    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
     setSelectedRow(e.target.closest("tr").dataset.rowInfo);
     setShowMenu(true);
   };
@@ -47,10 +43,10 @@ const SearchResult = (props) => {
       language: {
         search: "Table search: ",
       },
-      orderFixed: [[4, "asc"]],
+      orderFixed: [[5, "asc"]],
       rowGroup: {
         // Uses the 'row group' plugin
-        dataSrc: 4,
+        dataSrc: 5,
         startRender: function (rows, group) {
           let collapsed;
           // var collapsed = !!collapsedGroups[group]; // default to collapse all; original code
@@ -112,39 +108,33 @@ const SearchResult = (props) => {
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>
-          Expand All/Collapse All
-        </ButtonCancel>
-        <table id="searchResultTable" className="table table-striped w-100">
+        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
+        <table id="searchResultTable" className="table table-hover w-100">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Price</th>
-              <th>Rating</th>
-              <th>Count</th>
-              <th className="d-none">Category</th>
+              <th>Premise Address</th>
+              <th>Address Notes</th>
+              <th>Account Number</th>
+              <th>Account Status</th>
+              <th>Revenue Class</th>
+              <th className="d-none">Group By</th>
             </tr>
           </thead>
           <tbody>
-            {props.searchResult.map((result) => (
-              <tr key={result.id} data-row-info={JSON.stringify(result)}>
-                <td>{result.title}</td>
-                <td>{`$${result.price}`}</td>
-                <td>{result.rating.rate}</td>
-                <td>{result.rating.count}</td>
-                <td className="d-none">{result.category}</td>
+            {props.searchResult.map((result, index) => (
+              <tr key={index} data-row-info={JSON.stringify(result)}>
+                <td>{result.address}</td>
+                <td>{result.addressNotes}</td>
+                <td>{result.accountNo}</td>
+                <td>{result.accountStatus}</td>
+                <td>{result.revenueClass}</td>
+                <td className="d-none">{result.groupByField}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <SearchContextMenu
-        xLoc={xLoc}
-        yLoc={yLoc}
-        selectedRow={selectedRow}
-        showMenu={showMenu}
-        onMouseLeave={hideContextMenu}
-      />
+      <SearchContextMenu xLoc={xLoc} yLoc={yLoc} selectedRow={selectedRow} showMenu={showMenu} onMouseLeave={hideContextMenu} />
     </Fragment>
   );
 };
