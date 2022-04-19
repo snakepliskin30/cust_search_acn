@@ -109,6 +109,7 @@ const formatData = (response) => {
     lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
     fullname: info.fullname.trim().replace(/\s+/g, " "),
     address: capitalizePremise(info.address),
+    accountNoFormatted: info.accountNo ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}` : "",
     groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
   }));
 
@@ -135,7 +136,7 @@ export const useNameSearch = () => {
         fetchController.abort();
       }, timeOut);
 
-      const url = `${interfaceUrl}/php/custom/socoapicalls.php`;
+      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
       const formData = new FormData();
       formData.append("data", JSON.stringify(Request));
       formData.append("apiUrl", apiUrl);

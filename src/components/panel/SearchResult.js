@@ -14,6 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import classes from "./SearchResult.module.css";
 
 const SearchResult = (props) => {
+  console.log("searchResult", props.searchResult);
   const [selectedRow, setSelectedRow] = useState("");
   const [xLoc, setXLoc] = useState(0);
   const [yLoc, setYLoc] = useState(0);
@@ -21,17 +22,18 @@ const SearchResult = (props) => {
   const [expandAll, setExpandAll] = useState(true);
 
   const buildSearchTable = () => {
-    let collapsedGroups = {};
-    const table = $("#searchResultTable").DataTable();
-    table.destroy();
-    const oTable = $("#searchResultTable").DataTable({
-      destroy: true,
-      paging: false,
-      bFilter: false,
-      bInfo: false,
-      data: props.searchResult,
-      columns: [{ data: "address" }, { data: "addressNotes" }, { data: "accountNo" }, { data: "accountStatus" }, { data: "revenueClass" }, { data: "groupByField" }],
-      columnDefs: [
+    let columns;
+    let columnDefs;
+    if (props.searchResult.isCustSearch) {
+      columns = [
+        { data: "address", title: "Premise Address" },
+        { data: "addressNotes", title: "Address Notes" },
+        { data: "accountNoFormatted", title: "Account Number" },
+        { data: "accountStatus", title: "Account Status" },
+        { data: "revenueClass", title: "Revenue Class" },
+        { data: "groupByField", title: "Group By" },
+      ];
+      columnDefs = [
         {
           targets: [5], //Comma separated values
           visible: false,
@@ -41,7 +43,37 @@ const SearchResult = (props) => {
           width: "40%",
           targets: 0,
         },
-      ],
+      ];
+    } else {
+      columns = [
+        { data: "fullname", title: "Customer Name" },
+        { data: "addressNotes", title: "Address Notes" },
+        { data: "accountNoFormatted", title: "Account Number" },
+        { data: "accountStatus", title: "Account Status" },
+        { data: "revenueClass", title: "Revenue Class" },
+        { data: "groupByField", title: "Group By" },
+      ];
+      columnDefs = [
+        {
+          targets: [1, 5], //Comma separated values
+          visible: false,
+          searchable: false,
+        },
+        {
+          width: "40%",
+          targets: 0,
+        },
+      ];
+    }
+    let collapsedGroups = {};
+    const oTable = $("#searchResultTable").DataTable({
+      destroy: true,
+      paging: false,
+      bFilter: false,
+      bInfo: false,
+      data: props.searchResult.data,
+      columns: columns,
+      columnDefs: columnDefs,
       language: {
         search: "Table search: ",
       },
@@ -73,35 +105,16 @@ const SearchResult = (props) => {
       },
     });
 
-    oTable.draw();
-
     $("#searchResultTable tbody").on("click", "tr.dtrg-start", function () {
       const name = $(this).data("name");
       collapsedGroups[name] = !collapsedGroups[name];
       oTable.draw(false);
     });
-  };
 
-  useEffect(() => {
-    if (props.searchResult.length > 0) {
-      buildSearchTable();
-      const rows = document.querySelectorAll("tr:not(.dtrg-start)");
-      rows.forEach((e) => {
-        e.removeEventListener("contextmenu", contextMenuHandler);
-      });
-
-      rows.forEach((e) => {
-        e.addEventListener("contextmenu", contextMenuHandler);
-      });
-    }
-  }, [props.searchResult]);
-
-  useEffect(() => {
-    buildSearchTable();
-  }, [expandAll]);
-
-  const hideContextMenu = () => {
-    setShowMenu(false);
+    const rows = document.querySelectorAll("tr:not(.dtrg-start)");
+    rows.forEach((e) => {
+      e.addEventListener("contextmenu", contextMenuHandler);
+    });
   };
 
   const contextMenuHandler = (e) => {
@@ -113,17 +126,31 @@ const SearchResult = (props) => {
     setShowMenu(true);
   };
 
+  useEffect(() => {
+    if (props.searchResult.data.length > 0) {
+      buildSearchTable();
+    }
+  }, [props.searchResult]);
+
+  useEffect(() => {
+    buildSearchTable();
+  }, [expandAll]);
+
+  const hideContextMenu = () => {
+    setShowMenu(false);
+  };
+
   const expandAllHandler = () => {
     setExpandAll((current) => !current);
   };
 
-  if (props.searchResult.length === 0) return <div>No Result</div>;
+  if (props.searchResult.data.length === 0) return <div>No Result</div>;
   return (
     <Fragment>
       <div className={classes.main}>
         <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
         <table id="searchResultTable" className="table table-hover w-100">
-          <thead>
+          {/* <thead>
             <tr>
               <th>Premise Address</th>
               <th>Address Notes</th>
@@ -132,7 +159,7 @@ const SearchResult = (props) => {
               <th>Revenue Class</th>
               <th>Group By</th>
             </tr>
-          </thead>
+          </thead> */}
           {/* <tbody>
             {props.searchResult.map((result, index) => (
               <tr key={index} data-row-info={JSON.stringify(result)}>

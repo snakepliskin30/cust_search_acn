@@ -175,7 +175,7 @@ const SearchForm = (props) => {
   };
 
   return (
-    <form className={classes.main} onSubmit={submitFormHandler} autocomplete="off">
+    <form className={classes.main} onSubmit={submitFormHandler} autoComplete="off">
       <div className={classes.mainForm}>
         <div className={classes.custinfoform}>
           <InputNumber

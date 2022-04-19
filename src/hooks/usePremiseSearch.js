@@ -14,7 +14,6 @@ const translateStatus = (code) => {
 
   return status;
 };
-
 const padLeft = (str) => {
   return str.padStart(2, "0");
 };
@@ -31,19 +30,15 @@ const getCurrentTimestamp = () => {
   );
 };
 
-const buildRequestPayload = (phone) => {
-  const apiUrl = "CUSTOM_CFG_SOCOMLP_PHONE_SEARCH";
+const buildRequestPayload = (address, city, state, zip) => {
+  const apiUrl = "CUSTOM_CFG_SEARCH_ADDRESS_URL";
   const Request = {};
   const Payload = {};
-  const CustomerInfo = {};
-  const BaseRequest = {};
 
-  BaseRequest.transactionId = getCurrentTimestamp();
-  BaseRequest.userId = "X2RGDEZA"; // loggedUser.split("@")[0].toUpperCase();
-
-  CustomerInfo.contactNo = `1-${phone}`;
-  CustomerInfo.BaseRequest = BaseRequest;
-  Payload.CustomerInfo = CustomerInfo;
+  Payload.formattedAddress = address;
+  Payload.city = city;
+  Payload.state = state;
+  Payload.zipCode = zip;
 
   Request.Payload = Payload;
 
@@ -71,62 +66,58 @@ const capitalizePremise = (premise) => {
   return finalAddress;
 };
 
-const formatData = (response) => {
-  let data = null;
-  let custInfo = response.Payload.CustomerInfo;
-  custInfo = custInfo.map((info) => ({ ...info, accountStatus: translateStatus(info.accountStatus) }));
-  let svcAddress = response.Payload.ServiceAddress;
-  let shellCust = response.Payload.ShellCustomer;
-  let resultObj = {};
-  resultObj.fullName = "";
-  resultObj.fname = "";
-  resultObj.lname = "";
-  resultObj.accountNo = "";
-  resultObj.accountNoFormatted = "";
-  resultObj.accountStatus = "";
-  resultObj.accountType = "";
-  resultObj.customerType = "";
-  resultObj.revenueClass = "";
-  resultObj.operatingCompany = "";
-  resultObj.partyId = "";
-  resultObj.addressLine1 = "";
-  resultObj.addressLine2 = "";
-  resultObj.city = "";
-  resultObj.state = "";
-  resultObj.zipCode = "";
-  resultObj.addressNotes = "";
-
-  data = custInfo.map((info) => ({ ...info, ...svcAddress.find((item) => item.partyId === info.partyId), customerNo: "" }));
-  if (shellCust) {
-    const shellCustFinal = shellCust.map((shell) => ({ customerNo: shell.customerNo, fullname: shell.fullName, ...resultObj, address: `Customer record only` }));
-    data = [...data, ...shellCustFinal];
+const buildAddress = (addrLine1, addrLine2, city, state, zip) => {
+  let fullAddress = "";
+  if (addrLine1) {
+    if (addrLine2) {
+      fullAddress += `${capitalizePremise(addrLine1)} `;
+    } else {
+      fullAddress += `${capitalizePremise(addrLine1)}, `;
+    }
   }
+  if (addrLine2) {
+    fullAddress += `${capitalizePremise(addrLine2)}, `;
+  }
+  if (city) {
+    fullAddress += `${capitalizePremise(city)}, `;
+  }
+  if (state) {
+    fullAddress += `${state} `;
+  }
+  if (zip) {
+    fullAddress += `${zip}`;
+  }
+  return fullAddress;
+};
 
+const formatData = (response) => {
+  const custInfo = response.Payload.CustomerInfo;
+  let data = custInfo.map((info) => ({ ...info, ...info.ServiceAddress }));
   data = data.map((info) => ({
     ...info,
     fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
     lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
-    fullname: info.fullname.trim().replace(/\s+/g, " "),
-    address: capitalizePremise(info.address),
-    accountNoFormatted: info.accountNo ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}` : "",
-    groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
+    addressNotes: info.addressNotes ? info.addressNotes : " ",
+    accountNoFormatted: `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`,
+    address: buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode),
+    groupByField: `${buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode)}, ${info.addressNotes ? info.addressNotes : " "}, Premise Number ${info.premiseNo}`,
   }));
 
   return data;
 };
 
-export const usePhoneSearch = () => {
-  const [isPhoneLoading, setIsPhoneLoading] = useState(false);
-  const [isPhoneError, setIsPhoneError] = useState(false);
-  const [isPhoneErrorMessage, setIsPhoneErrorMessage] = useState("");
+export const usePremiseSearch = () => {
+  const [isPremiseLoading, setIsPremiseLoading] = useState(false);
+  const [isPremiseError, setIsPremiseError] = useState(false);
+  const [isPremiseErrorMessage, setIsPremiseErrorMessage] = useState("");
 
-  const searchPhone = async (phone, sessionToken, profileId, interfaceUrl) => {
-    setIsPhoneLoading(true);
-    setIsPhoneError(false);
-    setIsPhoneErrorMessage("");
+  const searchPremise = async (address, city, state, zip, sessionToken, profileId, interfaceUrl) => {
+    setIsPremiseLoading(true);
+    setIsPremiseError(false);
+    setIsPremiseErrorMessage("");
     let apiTimeoutId;
     try {
-      const { Request, apiUrl } = buildRequestPayload(phone);
+      const { Request, apiUrl } = buildRequestPayload(address, city, state, zip);
       const fetchController = new AbortController();
       const { signal } = fetchController;
       const timeOut = 60000;
@@ -135,7 +126,7 @@ export const usePhoneSearch = () => {
         fetchController.abort();
       }, timeOut);
 
-      const url = `${interfaceUrl}/php/custom/socoapicalls.php`;
+      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
       const formData = new FormData();
       formData.append("data", JSON.stringify(Request));
       formData.append("apiUrl", apiUrl);
@@ -154,17 +145,17 @@ export const usePhoneSearch = () => {
       const data = await response.json();
       const formattedData = formatData(data);
 
-      setIsPhoneLoading(false);
+      setIsPremiseLoading(false);
       return formattedData;
     } catch (e) {
       console.error(e.message);
       if (e.name === "AbortError") {
-        setIsPhoneError(true);
-        setIsPhoneErrorMessage("TIMEOUT");
+        setIsPremiseError(true);
+        setIsPremiseErrorMessage("TIMEOUT");
         return [];
       } else {
-        setIsPhoneError(true);
-        setIsPhoneErrorMessage("TIMEOUT");
+        setIsPremiseError(true);
+        setIsPremiseErrorMessage("TIMEOUT");
         return [];
       }
     } finally {
@@ -172,5 +163,5 @@ export const usePhoneSearch = () => {
     }
   };
 
-  return { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone };
+  return { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise };
 };

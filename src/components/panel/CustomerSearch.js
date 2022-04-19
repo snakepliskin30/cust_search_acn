@@ -7,28 +7,33 @@ import { useServiceCloudEnv } from "../../hooks/useServiceCloudEnv";
 import { useSSNSearch } from "../../hooks/useSSNSearch";
 import { usePhoneSearch } from "../../hooks/usePhoneSearch";
 import { useNameSearch } from "../../hooks/useNameSearch";
+import { usePremiseSearch } from "../../hooks/usePremiseSearch";
 
 import "./CustomerSearch.css";
 
 const CustomerSearch = (props) => {
   const [showForm, setShowForm] = useState(true);
   const [showResult, setShowResult] = useState(false);
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState({ data: [] });
   const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } = useSSNSearch();
   const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } = usePhoneSearch();
   const { isNameLoading, isNameError, isNameErrorMessage, searchName } = useNameSearch();
+  const { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise } = usePremiseSearch();
   const { osvcExtensionProv, osvcGlobalContext, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, getOsVcEnvValues } = useServiceCloudEnv();
 
   const searchAddressHander = async (params) => {
     if (params.ssntin) {
       const data = await searchSSN(params.ssntin, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
-      setSearchResult(data);
+      setSearchResult({ data: data, isCustSearch: true });
     } else if (params.phone) {
       const data = await searchPhone(params.phone, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
-      setSearchResult(data);
+      setSearchResult({ data: data, isCustSearch: true });
     } else if (params.firstName || params.lastName) {
       const data = await searchName(params.firstName, params.middleName, params.lastName, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
-      setSearchResult(data);
+      setSearchResult({ data: data, isCustSearch: true });
+    } else if (params.street) {
+      const data = await searchPremise(params.street, params.city, params.state, params.zip);
+      setSearchResult({ data: data, isPremiseSearch: true });
     }
   };
 
@@ -41,18 +46,18 @@ const CustomerSearch = (props) => {
   }, []);
 
   useEffect(() => {
-    if (searchResult.length > 0) {
+    if (searchResult?.data.length > 0) {
       setShowResult(true);
     }
   }, [searchResult]);
 
   useEffect(() => {
-    getOsVcEnvValues();
+    // getOsVcEnvValues();
   }, [getOsVcEnvValues]);
 
   return (
     <Fragment>
-      {(isSSNLoading || isPhoneLoading || isNameLoading) && <Spinner />}
+      {(isSSNLoading || isPhoneLoading || isNameLoading || isPremiseLoading) && <Spinner />}
       <Accordion title="Search" id="search" onClick={showFormtHandler}>
         {showForm && <SearchForm onSubmit={searchAddressHander} />}
       </Accordion>
