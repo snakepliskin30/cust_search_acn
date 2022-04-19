@@ -202,8 +202,9 @@ const formatData = (response) => {
       ...info,
       fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
       lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
+      fullname: info.fullname.trim().replace(/\s+/g, " "),
       address: capitalizePremise(info.address),
-      groupByField: `${info.fullname}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
+      groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
     }));
 
     return data;
@@ -250,7 +251,6 @@ export const useSSNSearch = () => {
 
       const data = await response.json();
       const formattedData = formatData(data);
-      console.table(formattedData);
 
       setIsSSNLoading(false);
       return formattedData;

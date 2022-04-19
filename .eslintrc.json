@@ -11,7 +11,8 @@
     "window": true,
     "FormData": true,
     "document": true,
-    "sessionStorage": true
+    "sessionStorage": true,
+    "import": true
   }
   // "rules": {
   //   "prettier/prettier": [

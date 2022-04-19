@@ -20,33 +20,35 @@ const SearchResult = (props) => {
   const [showMenu, setShowMenu] = useState(false);
   const [expandAll, setExpandAll] = useState(true);
 
-  const hideContextMenu = () => {
-    setShowMenu(false);
-  };
-
-  const contextMenuHandler = (e) => {
-    console.log("context");
-    e.preventDefault();
-    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
-    setSelectedRow(e.target.closest("tr").dataset.rowInfo);
-    setShowMenu(true);
-  };
-
-  const buildSearchTable = useCallback(() => {
+  const buildSearchTable = () => {
     let collapsedGroups = {};
+    const table = $("#searchResultTable").DataTable();
+    table.destroy();
     const oTable = $("#searchResultTable").DataTable({
       destroy: true,
       paging: false,
       bFilter: false,
       bInfo: false,
+      data: props.searchResult,
+      columns: [{ data: "address" }, { data: "addressNotes" }, { data: "accountNo" }, { data: "accountStatus" }, { data: "revenueClass" }, { data: "groupByField" }],
+      columnDefs: [
+        {
+          targets: [5], //Comma separated values
+          visible: false,
+          searchable: false,
+        },
+        {
+          width: "40%",
+          targets: 0,
+        },
+      ],
       language: {
         search: "Table search: ",
       },
       orderFixed: [[5, "asc"]],
       rowGroup: {
         // Uses the 'row group' plugin
-        dataSrc: 5,
+        dataSrc: "groupByField",
         startRender: function (rows, group) {
           let collapsed;
           // var collapsed = !!collapsedGroups[group]; // default to collapse all; original code
@@ -71,38 +73,49 @@ const SearchResult = (props) => {
       },
     });
 
+    oTable.draw();
+
     $("#searchResultTable tbody").on("click", "tr.dtrg-start", function () {
       const name = $(this).data("name");
       collapsedGroups[name] = !collapsedGroups[name];
       oTable.draw(false);
     });
-  }, [expandAll]);
-
-  const expandAllHandler = () => {
-    setExpandAll((current) => !current);
   };
 
   useEffect(() => {
     if (props.searchResult.length > 0) {
       buildSearchTable();
-
       const rows = document.querySelectorAll("tr:not(.dtrg-start)");
+      rows.forEach((e) => {
+        e.removeEventListener("contextmenu", contextMenuHandler);
+      });
+
       rows.forEach((e) => {
         e.addEventListener("contextmenu", contextMenuHandler);
       });
-
-      return () => {
-        const oldRows = document.querySelectorAll("tr:not(.dtrg-start)");
-        rows.forEach((e) => {
-          e.removeEventListener("contextmenu", contextMenuHandler);
-        });
-      };
     }
-  }, [props.searchResult, buildSearchTable]);
+  }, [props.searchResult]);
 
   useEffect(() => {
     buildSearchTable();
-  }, [expandAll, buildSearchTable]);
+  }, [expandAll]);
+
+  const hideContextMenu = () => {
+    setShowMenu(false);
+  };
+
+  const contextMenuHandler = (e) => {
+    console.log("context");
+    e.preventDefault();
+    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
+    setSelectedRow(e.target.closest("tr").dataset.rowInfo);
+    setShowMenu(true);
+  };
+
+  const expandAllHandler = () => {
+    setExpandAll((current) => !current);
+  };
 
   if (props.searchResult.length === 0) return <div>No Result</div>;
   return (
@@ -117,10 +130,10 @@ const SearchResult = (props) => {
               <th>Account Number</th>
               <th>Account Status</th>
               <th>Revenue Class</th>
-              <th className="d-none">Group By</th>
+              <th>Group By</th>
             </tr>
           </thead>
-          <tbody>
+          {/* <tbody>
             {props.searchResult.map((result, index) => (
               <tr key={index} data-row-info={JSON.stringify(result)}>
                 <td>{result.address}</td>
@@ -131,7 +144,7 @@ const SearchResult = (props) => {
                 <td className="d-none">{result.groupByField}</td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
         </table>
       </div>
       <SearchContextMenu xLoc={xLoc} yLoc={yLoc} selectedRow={selectedRow} showMenu={showMenu} onMouseLeave={hideContextMenu} />
