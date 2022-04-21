@@ -1,34 +1,6 @@
 import React, { useState } from "react";
-
-const translateStatus = (code) => {
-  const AccountStatus = {};
-  AccountStatus["02"] = "Active";
-  AccountStatus["03"] = "Pending Active";
-  AccountStatus["07"] = "Void";
-  AccountStatus["09"] = "Final";
-  AccountStatus["18"] = "Written Off";
-  AccountStatus["ACTIVE"] = "Active";
-  AccountStatus["INACTIVE"] = "Inactive";
-
-  const status = AccountStatus[code] || "";
-
-  return status;
-};
-const padLeft = (str) => {
-  return str.padStart(2, "0");
-};
-
-const getCurrentTimestamp = () => {
-  const d = new Date();
-  return (
-    d.getFullYear() +
-    padLeft((d.getMonth() + 1).toString()) +
-    padLeft(d.getDate().toString()) +
-    padLeft(d.getHours().toString()) +
-    padLeft(d.getMinutes().toString()) +
-    padLeft(d.getSeconds().toString())
-  );
-};
+import apiFetch from "./apiFetch";
+import { capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (address, city, state, zip) => {
   const apiUrl = "CUSTOM_CFG_SEARCH_ADDRESS_URL";
@@ -43,27 +15,6 @@ const buildRequestPayload = (address, city, state, zip) => {
   Request.Payload = Payload;
 
   return { Request, apiUrl };
-};
-
-const capitalizePremise = (premise) => {
-  if (premise === "Non-GPC Account" || premise === "Customer only record") {
-    return premise;
-  }
-  const premArray = premise.split(",");
-  let finalAddress = "";
-  if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  }
-  if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
-  }
-  if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
-    finalAddress += `, ${premArray[3]}`;
-  } else if (premArray.length === 3) {
-    finalAddress += `, ${premArray[2]}`;
-  }
-  return finalAddress;
 };
 
 const buildAddress = (addrLine1, addrLine2, city, state, zip) => {
@@ -115,51 +66,23 @@ export const usePremiseSearch = () => {
     setIsPremiseLoading(true);
     setIsPremiseError(false);
     setIsPremiseErrorMessage("");
-    let apiTimeoutId;
     try {
       const { Request, apiUrl } = buildRequestPayload(address, city, state, zip);
-      const fetchController = new AbortController();
-      const { signal } = fetchController;
-      const timeOut = 60000;
-
-      apiTimeoutId = setTimeout(() => {
-        fetchController.abort();
-      }, timeOut);
-
-      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
-      const formData = new FormData();
-      formData.append("data", JSON.stringify(Request));
-      formData.append("apiUrl", apiUrl);
-
-      const response = await fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          P_SID: sessionToken,
-          P_ID: profileId,
-        },
-        body: formData,
-        signal,
-      });
-
-      const data = await response.json();
+      const data = await apiFetch(Request, apiUrl, sessionToken, profileId, interfaceUrl);
       const formattedData = formatData(data);
 
       setIsPremiseLoading(false);
       return formattedData;
     } catch (e) {
-      console.error(e.message);
       if (e.name === "AbortError") {
-        setIsPremiseError(true);
-        setIsPremiseErrorMessage("TIMEOUT");
+        setIsSSNError(true);
+        setIsSSNErrorMessage("TIMEOUT_ERROR");
         return [];
       } else {
-        setIsPremiseError(true);
-        setIsPremiseErrorMessage("TIMEOUT");
+        setIsSSNError(true);
+        setIsSSNErrorMessage(e.message);
         return [];
       }
-    } finally {
-      clearTimeout(apiTimeoutId);
     }
   };
 

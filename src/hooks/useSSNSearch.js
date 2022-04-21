@@ -1,20 +1,6 @@
 import React, { useState } from "react";
-
-function padLeft(str) {
-  return str.padStart(2, "0");
-}
-
-const getCurrentTimestamp = () => {
-  const d = new Date();
-  return (
-    d.getFullYear() +
-    padLeft((d.getMonth() + 1).toString()) +
-    padLeft(d.getDate().toString()) +
-    padLeft(d.getHours().toString()) +
-    padLeft(d.getMinutes().toString()) +
-    padLeft(d.getSeconds().toString())
-  );
-};
+import apiFetch from "./apiFetch";
+import { getCurrentTimestamp, capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (ssntin) => {
   const apiUrl = "CUSTOM_CFG_SEARCH_SSN_URL";
@@ -37,29 +23,9 @@ const buildRequestPayload = (ssntin) => {
   return { Request, apiUrl };
 };
 
-function capitalizePremise(premise) {
-  if (premise === "Non-GPC Account" || premise === "Customer only record") {
-    return premise;
-  }
-  const premArray = premise.split(",");
-  let finalAddress = "";
-  if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  }
-  if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
-  }
-  if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
-    finalAddress += `, ${premArray[3]}`;
-  } else if (premArray.length === 3) {
-    finalAddress += `, ${premArray[2]}`;
-  }
-  return finalAddress;
-}
-
 const formatData = (response) => {
   try {
+    let data = null;
     const allAccountData = [];
     const allShellData = [];
     const resultObj = {};
@@ -80,26 +46,6 @@ const formatData = (response) => {
     resultObj.state = "";
     resultObj.zipCode = "";
     resultObj.addressNotes = "";
-    let data = null;
-
-    const shellObj = {};
-    shellObj.fullName = "";
-    shellObj.fname = "";
-    shellObj.lname = "";
-    shellObj.accountNo = "";
-    shellObj.accountNoFormatted = "";
-    shellObj.accountStatus = "";
-    shellObj.accountType = "";
-    shellObj.customerType = "";
-    shellObj.revenueClass = "";
-    shellObj.operatingCompany = "";
-    shellObj.partyId = "";
-    shellObj.addressLine1 = "";
-    shellObj.addressLine2 = "";
-    shellObj.city = "";
-    shellObj.state = "";
-    shellObj.zipCode = "";
-    shellObj.addressNotes = "";
 
     const ssnWithAcct = response.Result.Response.ResponseCode.find((p) => p.AccountExistsFlag === "Y");
 
@@ -223,51 +169,23 @@ export const useSSNSearch = () => {
     setIsSSNLoading(true);
     setIsSSNError(false);
     setIsSSNErrorMessage("");
-    let apiTimeoutId;
     try {
       const { Request, apiUrl } = buildRequestPayload(ssntin);
-      const fetchController = new AbortController();
-      const { signal } = fetchController;
-      const timeOut = 60000;
-
-      apiTimeoutId = setTimeout(() => {
-        fetchController.abort();
-      }, timeOut);
-
-      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
-      const formData = new FormData();
-      formData.append("data", JSON.stringify(Request));
-      formData.append("apiUrl", apiUrl);
-
-      const response = await fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          P_SID: sessionToken,
-          P_ID: profileId,
-        },
-        body: formData,
-        signal,
-      });
-
-      const data = await response.json();
+      const data = await apiFetch(Request, apiUrl, sessionToken, profileId, interfaceUrl);
       const formattedData = formatData(data);
 
       setIsSSNLoading(false);
       return formattedData;
     } catch (e) {
-      console.error(e.message);
       if (e.name === "AbortError") {
         setIsSSNError(true);
-        setIsSSNErrorMessage("TIMEOUT");
+        setIsSSNErrorMessage("TIMEOUT_ERROR");
         return [];
       } else {
         setIsSSNError(true);
-        setIsSSNErrorMessage("TIMEOUT");
+        setIsSSNErrorMessage(e.message);
         return [];
       }
-    } finally {
-      clearTimeout(apiTimeoutId);
     }
   };
 
