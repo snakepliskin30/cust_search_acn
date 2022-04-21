@@ -135,7 +135,7 @@ export const usePhoneSearch = () => {
         fetchController.abort();
       }, timeOut);
 
-      const url = `${interfaceUrl}/php/custom/socoapicalls.php`;
+      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
       const formData = new FormData();
       formData.append("data", JSON.stringify(Request));
       formData.append("apiUrl", apiUrl);
