@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import apiFetch from "./apiFetch";
+import useFetchHook from "./useFetchHook";
 import { getCurrentTimestamp, capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (ssntin) => {
@@ -164,6 +164,7 @@ export const useSSNSearch = () => {
   const [isSSNLoading, setIsSSNLoading] = useState(false);
   const [isSSNError, setIsSSNError] = useState(false);
   const [isSSNErrorMessage, setIsSSNErrorMessage] = useState("");
+  const { apiFetch } = useFetchHook();
 
   const searchSSN = async (ssntin, sessionToken, profileId, interfaceUrl) => {
     setIsSSNLoading(true);

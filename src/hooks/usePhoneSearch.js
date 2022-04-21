@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import apiFetch from "./apiFetch";
+import useFetchHook from "./useFetchHook";
 import { translateStatus, getCurrentTimestamp, capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (phone) => {
@@ -69,6 +69,7 @@ export const usePhoneSearch = () => {
   const [isPhoneLoading, setIsPhoneLoading] = useState(false);
   const [isPhoneError, setIsPhoneError] = useState(false);
   const [isPhoneErrorMessage, setIsPhoneErrorMessage] = useState("");
+  const { apiFetch } = useFetchHook();
 
   const searchPhone = async (phone, sessionToken, profileId, interfaceUrl) => {
     setIsPhoneLoading(true);

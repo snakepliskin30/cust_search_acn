@@ -32,7 +32,7 @@ const CustomerSearch = (props) => {
       const data = await searchName(params.firstName, params.middleName, params.lastName, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
       setSearchResult({ data: data, isCustSearch: true });
     } else if (params.street) {
-      const data = await searchPremise(params.street, params.city, params.state, params.zip);
+      const data = await searchPremise(params.street, params.city, params.state, params.zip, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
       setSearchResult({ data: data, isPremiseSearch: true });
     }
   };
@@ -52,7 +52,9 @@ const CustomerSearch = (props) => {
   }, [searchResult]);
 
   useEffect(() => {
-    // getOsVcEnvValues();
+    if (process.env.NODE_ENV === "production") {
+      getOsVcEnvValues();
+    }
   }, [getOsVcEnvValues]);
 
   return (

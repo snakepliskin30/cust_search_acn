@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import apiFetch from "./apiFetch";
+import useFetchHook from "./useFetchHook";
 import { translateStatus, getCurrentTimestamp, capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (firstname, middleName, lastName) => {
@@ -71,6 +71,7 @@ export const useNameSearch = () => {
   const [isNameLoading, setIsNameLoading] = useState(false);
   const [isNameError, setIsNameError] = useState(false);
   const [isNameErrorMessage, setIsNameErrorMessage] = useState("");
+  const { apiFetch } = useFetchHook();
 
   const searchName = async (firstname, middleName, lastName, sessionToken, profileId, interfaceUrl) => {
     setIsNameLoading(true);

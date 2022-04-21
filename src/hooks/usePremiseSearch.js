@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import apiFetch from "./apiFetch";
+import useFetchHook from "./useFetchHook";
 import { capitalizePremise } from "./helpers";
 
 const buildRequestPayload = (address, city, state, zip) => {
@@ -61,6 +61,7 @@ export const usePremiseSearch = () => {
   const [isPremiseLoading, setIsPremiseLoading] = useState(false);
   const [isPremiseError, setIsPremiseError] = useState(false);
   const [isPremiseErrorMessage, setIsPremiseErrorMessage] = useState("");
+  const { apiFetch } = useFetchHook();
 
   const searchPremise = async (address, city, state, zip, sessionToken, profileId, interfaceUrl) => {
     setIsPremiseLoading(true);
