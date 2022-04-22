@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const translateStatus = (code) => {
   const AccountStatus = {};
@@ -58,13 +58,22 @@ const capitalizePremise = (premise) => {
   const premArray = premise.split(",");
   let finalAddress = "";
   if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    finalAddress += premArray[0].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
   }
   if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
+    finalAddress += `, ${premArray[1].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )}`;
   }
   if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
+    finalAddress += `, ${premArray[2].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )}`;
     finalAddress += `, ${premArray[3]}`;
   } else if (premArray.length === 3) {
     finalAddress += `, ${premArray[2]}`;
@@ -75,7 +84,10 @@ const capitalizePremise = (premise) => {
 const formatData = (response) => {
   let data = null;
   let custInfo = response.Payload.CustomerInfo;
-  custInfo = custInfo.map((info) => ({ ...info, accountStatus: translateStatus(info.accountStatus) }));
+  custInfo = custInfo.map((info) => ({
+    ...info,
+    accountStatus: translateStatus(info.accountStatus),
+  }));
   let svcAddress = response.Payload.ServiceAddress;
   let shellCust = response.Payload.ShellCustomer;
   let resultObj = {};
@@ -97,20 +109,38 @@ const formatData = (response) => {
   resultObj.zipCode = "";
   resultObj.addressNotes = "";
 
-  data = custInfo.map((info) => ({ ...info, ...svcAddress.find((item) => item.partyId === info.partyId) }));
+  data = custInfo.map((info) => ({
+    ...info,
+    ...svcAddress.find((item) => item.partyId === info.partyId),
+  }));
   if (shellCust) {
-    const shellCustFinal = shellCust.map((shell) => ({ customerNo: shell.customerNo, fullname: shell.fullName, ...resultObj, address: `Customer record only` }));
+    const shellCustFinal = shellCust.map((shell) => ({
+      customerNo: shell.customerNo,
+      fullname: shell.fullName,
+      ...resultObj,
+      address: `Customer record only`,
+    }));
     data = [...data, ...shellCustFinal];
   }
 
   data = data.map((info) => ({
     ...info,
-    fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
-    lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
+    fname: info.fullname
+      .trim()
+      .substring(0, info.fullname.trim().lastIndexOf(" ")),
+    lname: info.fullname
+      .trim()
+      .substring(info.fullname.trim().lastIndexOf(" ") + 1),
     fullname: info.fullname.trim().replace(/\s+/g, " "),
     address: capitalizePremise(info.address),
-    accountNoFormatted: info.accountNo ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}` : "",
-    groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
+    accountNoFormatted: info.accountNo
+      ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`
+      : "",
+    groupByField: `${info.fullname
+      .trim()
+      .replace(/\s+/g, " ")}, Customer Number: ${
+      info.customerNo ? info.customerNo : ""
+    }`,
   }));
 
   return data;
@@ -121,13 +151,28 @@ export const useNameSearch = () => {
   const [isNameError, setIsNameError] = useState(false);
   const [isNameErrorMessage, setIsNameErrorMessage] = useState("");
 
-  const searchName = async (firstname, middleName, lastName, sessionToken, profileId, interfaceUrl) => {
+  const searchName = async (
+    firstname,
+    middleName,
+    lastName,
+    sessionToken,
+    profileId,
+    interfaceUrl
+  ) => {
+    let url = `${interfaceUrl}/php/custom/socoapicalls.php`;
+    if (process.env.NODE_ENV !== "production")
+      url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
+
     setIsNameLoading(true);
     setIsNameError(false);
     setIsNameErrorMessage("");
     let apiTimeoutId;
     try {
-      const { Request, apiUrl } = buildRequestPayload(firstname, middleName, lastName);
+      const { Request, apiUrl } = buildRequestPayload(
+        firstname,
+        middleName,
+        lastName
+      );
       const fetchController = new AbortController();
       const { signal } = fetchController;
       const timeOut = 60000;
@@ -136,7 +181,6 @@ export const useNameSearch = () => {
         fetchController.abort();
       }, timeOut);
 
-      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
       const formData = new FormData();
       formData.append("data", JSON.stringify(Request));
       formData.append("apiUrl", apiUrl);

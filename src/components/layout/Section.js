@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 import classes from "./Section.module.css";
 
@@ -17,6 +18,13 @@ const Section = (props) => {
       <div className={classes.content}>{props.children}</div>
     </div>
   );
+};
+
+Section.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.bool]),
+  noBtn: PropTypes.bool,
+  onClick: PropTypes.func,
 };
 
 export default React.memo(Section);

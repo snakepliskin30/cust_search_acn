@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const SearchContextMenu = (props) => {
   const openContactHandler = () => {
@@ -33,6 +34,14 @@ const SearchContextMenu = (props) => {
       <div>Start Service</div>
     </div>
   );
+};
+
+SearchContextMenu.propTypes = {
+  selectedRow: PropTypes.string.isRequired,
+  xLoc: PropTypes.number.isRequired,
+  yLoc: PropTypes.number.isRequired,
+  showMenu: PropTypes.bool.isRequired,
+  onMouseLeave: PropTypes.func.isRequired,
 };
 
 export default SearchContextMenu;

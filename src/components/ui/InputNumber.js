@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
 import Cleave from "cleave.js/react";
 
 import classes from "./InputNumber.module.css";
@@ -19,9 +19,25 @@ const InputNumber = (props) => {
         disabled={props.disabled}
         autoComplete="off"
       />
-      <div className={classes.error}>{props.invalid && props.invalidMessage}</div>
+      <div className={classes.error}>
+        {props.invalid && props.invalidMessage}
+      </div>
     </div>
   );
+};
+
+InputNumber.propTypes = {
+  id: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  options: PropTypes.object,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func,
+  disabled: PropTypes.bool,
+  invalid: PropTypes.bool,
+  invalidMessage: PropTypes.string,
 };
 
 export default InputNumber;

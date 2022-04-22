@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import classes from "./TextArea.module.css";
 
@@ -11,6 +12,14 @@ const TextArea = (props) => {
       <textarea id={props.id} rows="4" cols="50" />
     </div>
   );
+};
+
+TextArea.propTypes = {
+  id: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  label: PropTypes.string.isRequired,
 };
 
 export default TextArea;

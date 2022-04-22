@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import classes from "./ButtonCancel.module.css";
 
@@ -8,6 +9,11 @@ const ButtonCancel = (props) => {
       {props.children}
     </button>
   );
+};
+
+ButtonCancel.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  children: PropTypes.string,
 };
 
 export default ButtonCancel;

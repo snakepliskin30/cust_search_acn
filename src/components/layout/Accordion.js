@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 import classes from "./Accordion.module.css";
 
@@ -17,6 +18,13 @@ const Accordion = (props) => {
       <div className={classes.content}>{props.children}</div>
     </div>
   );
+};
+
+Accordion.propTypes = {
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  children: PropTypes.oneOfType([PropTypes.bool, PropTypes.element]),
 };
 
 export default Accordion;

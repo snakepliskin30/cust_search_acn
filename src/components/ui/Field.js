@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import classes from "./Field.module.css";
 
@@ -9,6 +10,11 @@ const Field = (props) => {
       <div className={classes.value}>{props.value}</div>
     </div>
   );
+};
+
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
 };
 
 export default Field;

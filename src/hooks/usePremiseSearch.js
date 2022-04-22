@@ -1,34 +1,4 @@
-import React, { useState } from "react";
-
-const translateStatus = (code) => {
-  const AccountStatus = {};
-  AccountStatus["02"] = "Active";
-  AccountStatus["03"] = "Pending Active";
-  AccountStatus["07"] = "Void";
-  AccountStatus["09"] = "Final";
-  AccountStatus["18"] = "Written Off";
-  AccountStatus["ACTIVE"] = "Active";
-  AccountStatus["INACTIVE"] = "Inactive";
-
-  const status = AccountStatus[code] || "";
-
-  return status;
-};
-const padLeft = (str) => {
-  return str.padStart(2, "0");
-};
-
-const getCurrentTimestamp = () => {
-  const d = new Date();
-  return (
-    d.getFullYear() +
-    padLeft((d.getMonth() + 1).toString()) +
-    padLeft(d.getDate().toString()) +
-    padLeft(d.getHours().toString()) +
-    padLeft(d.getMinutes().toString()) +
-    padLeft(d.getSeconds().toString())
-  );
-};
+import { useState } from "react";
 
 const buildRequestPayload = (address, city, state, zip) => {
   const apiUrl = "CUSTOM_CFG_SEARCH_ADDRESS_URL";
@@ -52,13 +22,22 @@ const capitalizePremise = (premise) => {
   const premArray = premise.split(",");
   let finalAddress = "";
   if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    finalAddress += premArray[0].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
   }
   if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
+    finalAddress += `, ${premArray[1].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )}`;
   }
   if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
+    finalAddress += `, ${premArray[2].replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )}`;
     finalAddress += `, ${premArray[3]}`;
   } else if (premArray.length === 3) {
     finalAddress += `, ${premArray[2]}`;
@@ -95,12 +74,32 @@ const formatData = (response) => {
   let data = custInfo.map((info) => ({ ...info, ...info.ServiceAddress }));
   data = data.map((info) => ({
     ...info,
-    fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
-    lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
+    fname: info.fullname
+      .trim()
+      .substring(0, info.fullname.trim().lastIndexOf(" ")),
+    lname: info.fullname
+      .trim()
+      .substring(info.fullname.trim().lastIndexOf(" ") + 1),
     addressNotes: info.addressNotes ? info.addressNotes : " ",
-    accountNoFormatted: `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`,
-    address: buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode),
-    groupByField: `${buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode)}, ${info.addressNotes ? info.addressNotes : " "}, Premise Number ${info.premiseNo}`,
+    accountNoFormatted: `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(
+      -5
+    )}`,
+    address: buildAddress(
+      info.addressLine1,
+      info.addressLine2,
+      info.city,
+      info.state,
+      info.zipCode
+    ),
+    groupByField: `${buildAddress(
+      info.addressLine1,
+      info.addressLine2,
+      info.city,
+      info.state,
+      info.zipCode
+    )}, ${info.addressNotes ? info.addressNotes : " "}, Premise Number ${
+      info.premiseNo
+    }`,
   }));
 
   return data;
@@ -111,13 +110,30 @@ export const usePremiseSearch = () => {
   const [isPremiseError, setIsPremiseError] = useState(false);
   const [isPremiseErrorMessage, setIsPremiseErrorMessage] = useState("");
 
-  const searchPremise = async (address, city, state, zip, sessionToken, profileId, interfaceUrl) => {
+  const searchPremise = async (
+    address,
+    city,
+    state,
+    zip,
+    sessionToken,
+    profileId,
+    interfaceUrl
+  ) => {
+    let url = `${interfaceUrl}/php/custom/socoapicalls.php`;
+    if (process.env.NODE_ENV !== "production")
+      url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
+
     setIsPremiseLoading(true);
     setIsPremiseError(false);
     setIsPremiseErrorMessage("");
     let apiTimeoutId;
     try {
-      const { Request, apiUrl } = buildRequestPayload(address, city, state, zip);
+      const { Request, apiUrl } = buildRequestPayload(
+        address,
+        city,
+        state,
+        zip
+      );
       const fetchController = new AbortController();
       const { signal } = fetchController;
       const timeOut = 60000;
@@ -126,7 +142,6 @@ export const usePremiseSearch = () => {
         fetchController.abort();
       }, timeOut);
 
-      const url = `http://localhost:8181/osvc/socoapicalls_nocs.php`; // `${interfaceUrl}/php/custom/socoapicalls.php`;
       const formData = new FormData();
       formData.append("data", JSON.stringify(Request));
       formData.append("apiUrl", apiUrl);
@@ -163,5 +178,10 @@ export const usePremiseSearch = () => {
     }
   };
 
-  return { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise };
+  return {
+    isPremiseLoading,
+    isPremiseError,
+    isPremiseErrorMessage,
+    searchPremise,
+  };
 };

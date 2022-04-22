@@ -1,4 +1,5 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import SearchContextMenu from "../layout/SearchContextMenu";
 import ButtonCancel from "../ui/ButtonCancel";
 
@@ -120,8 +121,12 @@ const SearchResult = (props) => {
   const contextMenuHandler = (e) => {
     console.log("context");
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
+    e.clientX + 200 > window.innerWidth
+      ? setXLoc(window.innerWidth - 210)
+      : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight
+      ? setYLoc(window.innerHeight - 70)
+      : setYLoc(e.clientY - 10);
     setSelectedRow(e.target.closest("tr").dataset.rowInfo);
     setShowMenu(true);
   };
@@ -148,7 +153,9 @@ const SearchResult = (props) => {
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
+        <ButtonCancel onClick={expandAllHandler}>
+          Expand All/Collapse All
+        </ButtonCancel>
         <table id="searchResultTable" className="table table-hover w-100">
           {/* <thead>
             <tr>
@@ -174,9 +181,19 @@ const SearchResult = (props) => {
           </tbody> */}
         </table>
       </div>
-      <SearchContextMenu xLoc={xLoc} yLoc={yLoc} selectedRow={selectedRow} showMenu={showMenu} onMouseLeave={hideContextMenu} />
+      <SearchContextMenu
+        xLoc={xLoc}
+        yLoc={yLoc}
+        selectedRow={selectedRow}
+        showMenu={showMenu}
+        onMouseLeave={hideContextMenu}
+      />
     </Fragment>
   );
+};
+
+SearchResult.propTypes = {
+  searchResult: PropTypes.array.isRequired,
 };
 
 export default React.memo(SearchResult);

@@ -11,28 +11,63 @@ import { usePremiseSearch } from "../../hooks/usePremiseSearch";
 
 import "./CustomerSearch.css";
 
-const CustomerSearch = (props) => {
+const CustomerSearch = () => {
   const [showForm, setShowForm] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [searchResult, setSearchResult] = useState({ data: [] });
-  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } = useSSNSearch();
-  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } = usePhoneSearch();
-  const { isNameLoading, isNameError, isNameErrorMessage, searchName } = useNameSearch();
-  const { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise } = usePremiseSearch();
-  const { osvcExtensionProv, osvcGlobalContext, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, getOsVcEnvValues } = useServiceCloudEnv();
+  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } =
+    useSSNSearch();
+  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } =
+    usePhoneSearch();
+  const { isNameLoading, isNameError, isNameErrorMessage, searchName } =
+    useNameSearch();
+  const {
+    isPremiseLoading,
+    isPremiseError,
+    isPremiseErrorMessage,
+    searchPremise,
+  } = usePremiseSearch();
+  const {
+    osvcSessionToken,
+    osvcProfileId,
+    osvcInterfaceUrl,
+    getOsVcEnvValues,
+  } = useServiceCloudEnv();
 
   const searchAddressHander = async (params) => {
     if (params.ssntin) {
-      const data = await searchSSN(params.ssntin, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
+      const data = await searchSSN(
+        params.ssntin,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl
+      );
       setSearchResult({ data: data, isCustSearch: true });
     } else if (params.phone) {
-      const data = await searchPhone(params.phone, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
+      const data = await searchPhone(
+        params.phone,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl
+      );
       setSearchResult({ data: data, isCustSearch: true });
     } else if (params.firstName || params.lastName) {
-      const data = await searchName(params.firstName, params.middleName, params.lastName, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
+      const data = await searchName(
+        params.firstName,
+        params.middleName,
+        params.lastName,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl
+      );
       setSearchResult({ data: data, isCustSearch: true });
     } else if (params.street) {
-      const data = await searchPremise(params.street, params.city, params.state, params.zip);
+      const data = await searchPremise(
+        params.street,
+        params.city,
+        params.state,
+        params.zip
+      );
       setSearchResult({ data: data, isPremiseSearch: true });
     }
   };
@@ -57,11 +92,26 @@ const CustomerSearch = (props) => {
 
   return (
     <Fragment>
-      {(isSSNLoading || isPhoneLoading || isNameLoading || isPremiseLoading) && <Spinner />}
+      {(isSSNLoading ||
+        isPhoneLoading ||
+        isNameLoading ||
+        isPremiseLoading) && <Spinner />}
+      {(isNameError || isPhoneError || isPremiseError || isSSNError) && (
+        <dir>
+          {isNameErrorMessage ||
+            isPhoneErrorMessage ||
+            isPremiseErrorMessage ||
+            isSSNErrorMessage}
+        </dir>
+      )}
       <Accordion title="Search" id="search" onClick={showFormtHandler}>
         {showForm && <SearchForm onSubmit={searchAddressHander} />}
       </Accordion>
-      <Accordion title="Search Result" id="searchResult" onClick={showResultHandler}>
+      <Accordion
+        title="Search Result"
+        id="searchResult"
+        onClick={showResultHandler}
+      >
         {showResult && <SearchResult searchResult={searchResult} />}
       </Accordion>
     </Fragment>
