@@ -44,22 +44,13 @@ function capitalizePremise(premise) {
   const premArray = premise.split(",");
   let finalAddress = "";
   if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
+    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
   if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
   }
   if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
     finalAddress += `, ${premArray[3]}`;
   } else if (premArray.length === 3) {
     finalAddress += `, ${premArray[2]}`;
@@ -110,9 +101,7 @@ const formatData = (response) => {
     shellObj.zipCode = "";
     shellObj.addressNotes = "";
 
-    const ssnWithAcct = response.Result.Response.ResponseCode.find(
-      (p) => p.AccountExistsFlag === "Y"
-    );
+    const ssnWithAcct = response.Result.Response.ResponseCode.find((p) => p.AccountExistsFlag === "Y");
 
     if (ssnWithAcct) {
       // const custInfoObj = response.Payload.find((obj) => obj.CustomerInfo);
@@ -144,10 +133,7 @@ const formatData = (response) => {
               allAccountData.push(accountData);
             }
             // Only accept non-gpc if gpc doesn't exist
-            else if (
-              !gpcAcctExist &&
-              accountData.operatingCompany.toLowerCase() !== "gpc"
-            ) {
+            else if (!gpcAcctExist && accountData.operatingCompany.toLowerCase() !== "gpc") {
               accountData.customerNo = customerNo;
               accountData.accountNo = "";
               accountData.accountStatus = "";
@@ -214,22 +200,12 @@ const formatData = (response) => {
     data = [...allAccountData, ...allShellData];
     data = data.map((info) => ({
       ...info,
-      fname: info.fullname
-        .trim()
-        .substring(0, info.fullname.trim().lastIndexOf(" ")),
-      lname: info.fullname
-        .trim()
-        .substring(info.fullname.trim().lastIndexOf(" ") + 1),
+      fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
+      lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
       fullname: info.fullname.trim().replace(/\s+/g, " "),
       address: capitalizePremise(info.address),
-      accountNoFormatted: info.accountNo
-        ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`
-        : "",
-      groupByField: `${info.fullname
-        .trim()
-        .replace(/\s+/g, " ")}, Customer Number: ${
-        info.customerNo ? info.customerNo : ""
-      }`,
+      accountNoFormatted: info.accountNo ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}` : "",
+      groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
     }));
 
     return data;
@@ -245,8 +221,7 @@ export const useSSNSearch = () => {
 
   const searchSSN = async (ssntin, sessionToken, profileId, interfaceUrl) => {
     let url = `${interfaceUrl}/php/custom/socoapicalls.php`;
-    if (process.env.NODE_ENV !== "production")
-      url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
+    if (process.env.NODE_ENV !== "production") url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
 
     setIsSSNLoading(true);
     setIsSSNError(false);
@@ -278,6 +253,7 @@ export const useSSNSearch = () => {
       });
 
       const data = await response.json();
+      sessionStorage.setItem("search_by_ssn_result", JSON.stringify(data));
       const formattedData = formatData(data);
 
       setIsSSNLoading(false);

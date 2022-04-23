@@ -15,8 +15,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import classes from "./SearchResult.module.css";
 
 const SearchResult = (props) => {
-  console.log("searchResult", props.searchResult);
-  const [selectedRow, setSelectedRow] = useState("");
+  const [selectedRow, setSelectedRow] = useState({});
   const [xLoc, setXLoc] = useState(0);
   const [yLoc, setYLoc] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
@@ -79,6 +78,10 @@ const SearchResult = (props) => {
         search: "Table search: ",
       },
       orderFixed: [[5, "asc"]],
+      createdRow: function (row, data) {
+        $(row).attr("data-accountnum", data.accountNo);
+        $(row).attr("data-customernum", data.customerNo);
+      },
       rowGroup: {
         // Uses the 'row group' plugin
         dataSrc: "groupByField",
@@ -119,20 +122,19 @@ const SearchResult = (props) => {
   };
 
   const contextMenuHandler = (e) => {
-    console.log("context");
+    console.log(e.target.closest("tr").dataset.accountnum);
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth
-      ? setXLoc(window.innerWidth - 210)
-      : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight
-      ? setYLoc(window.innerHeight - 70)
-      : setYLoc(e.clientY - 10);
-    setSelectedRow(e.target.closest("tr").dataset.rowInfo);
+    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
+    setSelectedRow({
+      accountNo: e.target.closest("tr").dataset.accountnum,
+      customerNo: e.target.closest("tr").dataset.customernum,
+    });
     setShowMenu(true);
   };
 
   useEffect(() => {
-    if (props.searchResult.data.length > 0) {
+    if (props.searchResult?.data.length > 0) {
       buildSearchTable();
     }
   }, [props.searchResult]);
@@ -149,13 +151,11 @@ const SearchResult = (props) => {
     setExpandAll((current) => !current);
   };
 
-  if (props.searchResult.data.length === 0) return <div>No Result</div>;
+  if (props.searchResult?.data.length === 0) return <div>No Result</div>;
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>
-          Expand All/Collapse All
-        </ButtonCancel>
+        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
         <table id="searchResultTable" className="table table-hover w-100">
           {/* <thead>
             <tr>
@@ -187,13 +187,19 @@ const SearchResult = (props) => {
         selectedRow={selectedRow}
         showMenu={showMenu}
         onMouseLeave={hideContextMenu}
+        getOsvcParams={props.getOsvcParams}
+        showModalClick={props.showModalClick}
+        showModal={props.showModal}
       />
     </Fragment>
   );
 };
 
 SearchResult.propTypes = {
-  searchResult: PropTypes.array.isRequired,
+  searchResult: PropTypes.object.isRequired,
+  getOsvcParams: PropTypes.func,
+  showModalClick: PropTypes.func,
+  showModal: PropTypes.bool,
 };
 
 export default React.memo(SearchResult);

@@ -6,22 +6,31 @@ export const useServiceCloudEnv = () => {
   const [osvcSessionToken, setOsvcSessionToken] = useState("");
   const [osvcProfileId, setOsvcProfileId] = useState("");
   const [osvcInterfaceUrl, setOsvcInterfaceUrl] = useState("");
+  const [osvcInterfaceUrlREST, setOsvcInterfaceUrlREST] = useState("");
+  const [osvcEnvironmentParams, setOsvcEnvironmentParams] = useState({});
 
   const getOsVcEnvValues = useCallback(async () => {
-    const IExtensionProvider = await ORACLE_SERVICE_CLOUD.extension_loader.load(
-      "ExternalSearchResultsExt",
-      "1"
-    );
+    const IExtensionProvider = await ORACLE_SERVICE_CLOUD.extension_loader.load("ExternalSearchResultsExt", "1");
     const globalContext = await IExtensionProvider.getGlobalContext();
     const sessionToken = await globalContext.getSessionToken();
     const profileId = globalContext.getProfileId();
     const interfaceUrl = globalContext.getInterfaceUrl();
+    const interfaceUrlREST = globalContext.getInterfaceServiceUrl("REST");
 
     setOsvcExtensionProv(IExtensionProvider);
     setOsvcGlobalContext(globalContext);
     setOsvcSessionToken(sessionToken);
     setOsvcProfileId(profileId);
     setOsvcInterfaceUrl(interfaceUrl);
+    setOsvcInterfaceUrlREST(interfaceUrlREST);
+    setOsvcEnvironmentParams({
+      osvcExtensionProv,
+      osvcGlobalContext,
+      osvcSessionToken,
+      osvcProfileId,
+      osvcInterfaceUrl,
+      osvcInterfaceUrlREST,
+    });
 
     return true;
   }, []);
@@ -32,6 +41,8 @@ export const useServiceCloudEnv = () => {
     osvcSessionToken,
     osvcProfileId,
     osvcInterfaceUrl,
+    osvcInterfaceUrlREST,
+    osvcEnvironmentParams,
     getOsVcEnvValues,
   };
 };
