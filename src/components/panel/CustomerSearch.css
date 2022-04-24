@@ -6,6 +6,34 @@
   position: relative;
 }
 
+.logo {
+  height: 40px;
+}
+
+.cust_search_header {
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.external_url {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+}
+
+a.url,
+a.url:visited {
+  font-weight: bold;
+  color: #1d82e3;
+  text-decoration: none;
+}
+
+.cust_search_body {
+  margin-top: 20px;
+  padding: 20px;
+}
+
 .checkbox {
   display: flex;
   align-items: center;

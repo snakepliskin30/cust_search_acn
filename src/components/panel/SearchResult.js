@@ -81,6 +81,7 @@ const SearchResult = (props) => {
       createdRow: function (row, data) {
         $(row).attr("data-accountnum", data.accountNo);
         $(row).attr("data-customernum", data.customerNo);
+        $(row).attr("data-revenueclass", data.revenueClass);
       },
       rowGroup: {
         // Uses the 'row group' plugin
@@ -124,11 +125,16 @@ const SearchResult = (props) => {
   const contextMenuHandler = (e) => {
     console.log(e.target.closest("tr").dataset.accountnum);
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
+    e.clientX + 200 > window.innerWidth
+      ? setXLoc(window.innerWidth - 210)
+      : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight
+      ? setYLoc(window.innerHeight - 70)
+      : setYLoc(e.clientY - 10);
     setSelectedRow({
       accountNo: e.target.closest("tr").dataset.accountnum,
       customerNo: e.target.closest("tr").dataset.customernum,
+      revenueClass: e.target.closest("tr").dataset.revenueclass,
     });
     setShowMenu(true);
   };
@@ -155,7 +161,9 @@ const SearchResult = (props) => {
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
+        <ButtonCancel onClick={expandAllHandler}>
+          Expand All/Collapse All
+        </ButtonCancel>
         <table id="searchResultTable" className="table table-hover w-100">
           {/* <thead>
             <tr>

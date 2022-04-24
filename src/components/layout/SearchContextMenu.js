@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { callAccountSearchApi } from "../../hooks/AccountSearch360";
 
+import classes from "./SearchContextMenu.module.css";
+
 const SearchContextMenu = (props) => {
   const openContactHandler = () => {
     const osvcParams = props.getOsvcParams();
@@ -25,13 +27,12 @@ const SearchContextMenu = (props) => {
 
   const style = () => {
     return {
-      height: 70,
-      width: 200,
-      borderRadius: 5,
-      backgroundColor: "#ff5c58",
+      height: "auto",
+      width: 180,
+      borderRadius: 3,
+      backgroundColor: "rgba(252, 252, 253)",
       color: "#fcd2d1",
       flexDirection: "column",
-      padding: 10,
       top: props.yLoc,
       left: props.xLoc,
       transform: props.showMenu ? "scale(1)" : "scale(0)",
@@ -42,10 +43,34 @@ const SearchContextMenu = (props) => {
     };
   };
 
+  let openContactClass = `${classes.open360} ${classes.inactive}`;
+  let openStartSvcClass = `${classes.startservice} ${classes.inactive}`;
+  if (
+    props.selectedRow.accountNo &&
+    props.selectedRow.revenueClass === "Residential"
+  ) {
+    openContactClass = `${classes.open360}`;
+  }
+
+  if (!props.selectedRow.accountNo && props.selectedRow.customerNo) {
+    openStartSvcClass = `${classes.startservice}`;
+  }
+
   return (
-    <div id="searchContextMenu" style={style()} onMouseLeave={props.onMouseLeave}>
-      <div onClick={openContactHandler}>Open 360</div>
-      <div onClick={showModalShellModalClickHandler}>Start Service</div>
+    <div
+      id="searchContextMenu"
+      style={style()}
+      onMouseLeave={props.onMouseLeave}
+    >
+      <div onClick={openContactHandler} className={openContactClass}>
+        <div>Open 360</div>
+      </div>
+      <div
+        onClick={showModalShellModalClickHandler}
+        className={openStartSvcClass}
+      >
+        <div> Start Service</div>
+      </div>
     </div>
   );
 };
