@@ -253,8 +253,14 @@ export const useSSNSearch = () => {
       });
 
       const data = await response.json();
+      let formattedData = [];
       sessionStorage.setItem("search_by_ssn_result", JSON.stringify(data));
-      const formattedData = formatData(data);
+
+      if (data.Result.Response.ResponseCode[0].SSNExistsFlag === "N" && data.Result.Response.ResponseCode[0].AccountExistsFlag === "N") {
+        formattedData = [];
+      } else {
+        formattedData = formatData(data);
+      }
 
       setIsSSNLoading(false);
       return formattedData;

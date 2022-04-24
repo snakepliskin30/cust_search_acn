@@ -63,15 +63,16 @@ export const useAccountSearch = () => {
   const [isAccountError, setIsAccountError] = useState(false);
   const [isAccountErrorMessage, setIsAccountErrorMessage] = useState("");
 
-  const searchAccount = async (accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest) => {
+  const searchAccount = async (accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest, login) => {
     try {
       let custInfo = [];
       let data;
       sessionStorage.removeItem("customer_search_contact");
       setIsAccountLoading(true);
-      callAccountSearchApi(accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest);
+      callAccountSearchApi(accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest, login);
       let response = await getSearchResult();
       response = JSON.parse(response);
+      console.log(response);
       if (response.Result.status.toLowerCase() === "ok") {
         const responseData = {
           ...response.Payload.CustomerInfo,
@@ -97,6 +98,9 @@ export const useAccountSearch = () => {
 
         setIsAccountLoading(false);
         return formattedData;
+      } else {
+        setIsAccountLoading(false);
+        return [];
       }
     } catch (e) {
       console.error(e.message);

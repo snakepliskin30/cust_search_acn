@@ -30,7 +30,7 @@ const getCurrentTimestamp = () => {
   );
 };
 
-const buildRequestPayload = (firstname, middleName, lastName) => {
+const buildRequestPayload = (firstname, middleName, lastName, login) => {
   const apiUrl = "CUSTOM_CFG_SOCOMLP_NAME_SEARCH";
   const Request = {};
   const Payload = {};
@@ -38,7 +38,7 @@ const buildRequestPayload = (firstname, middleName, lastName) => {
   const BaseRequest = {};
 
   BaseRequest.transactionId = getCurrentTimestamp();
-  BaseRequest.userId = "X2RGDEZA"; // loggedUser.split("@")[0].toUpperCase();
+  BaseRequest.userId = login;
 
   CustomerInfo.fname = firstname ? firstname.toUpperCase() : "";
   CustomerInfo.mname = middleName ? middleName.toUpperCase() : "";
@@ -58,22 +58,13 @@ const capitalizePremise = (premise) => {
   const premArray = premise.split(",");
   let finalAddress = "";
   if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
+    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
   if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
   }
   if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
     finalAddress += `, ${premArray[3]}`;
   } else if (premArray.length === 3) {
     finalAddress += `, ${premArray[2]}`;
@@ -125,22 +116,12 @@ const formatData = (response) => {
 
   data = data.map((info) => ({
     ...info,
-    fname: info.fullname
-      .trim()
-      .substring(0, info.fullname.trim().lastIndexOf(" ")),
-    lname: info.fullname
-      .trim()
-      .substring(info.fullname.trim().lastIndexOf(" ") + 1),
+    fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
+    lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
     fullname: info.fullname.trim().replace(/\s+/g, " "),
     address: capitalizePremise(info.address),
-    accountNoFormatted: info.accountNo
-      ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`
-      : "",
-    groupByField: `${info.fullname
-      .trim()
-      .replace(/\s+/g, " ")}, Customer Number: ${
-      info.customerNo ? info.customerNo : ""
-    }`,
+    accountNoFormatted: info.accountNo ? `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}` : "",
+    groupByField: `${info.fullname.trim().replace(/\s+/g, " ")}, Customer Number: ${info.customerNo ? info.customerNo : ""}`,
   }));
 
   return data;
@@ -151,28 +132,16 @@ export const useNameSearch = () => {
   const [isNameError, setIsNameError] = useState(false);
   const [isNameErrorMessage, setIsNameErrorMessage] = useState("");
 
-  const searchName = async (
-    firstname,
-    middleName,
-    lastName,
-    sessionToken,
-    profileId,
-    interfaceUrl
-  ) => {
+  const searchName = async (firstname, middleName, lastName, sessionToken, profileId, interfaceUrl, login) => {
     let url = `${interfaceUrl}/php/custom/socoapicalls.php`;
-    if (process.env.NODE_ENV !== "production")
-      url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
+    if (process.env.NODE_ENV !== "production") url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
 
     setIsNameLoading(true);
     setIsNameError(false);
     setIsNameErrorMessage("");
     let apiTimeoutId;
     try {
-      const { Request, apiUrl } = buildRequestPayload(
-        firstname,
-        middleName,
-        lastName
-      );
+      const { Request, apiUrl } = buildRequestPayload(firstname, middleName, lastName, login);
       const fetchController = new AbortController();
       const { signal } = fetchController;
       const timeOut = 60000;
@@ -197,7 +166,13 @@ export const useNameSearch = () => {
       });
 
       const data = await response.json();
-      const formattedData = formatData(data);
+      let formattedData = [];
+
+      if (data.Result.status.toLowerCase() === "ok") {
+        formattedData = formatData(data);
+      } else {
+        formattedData = [];
+      }
 
       setIsNameLoading(false);
       return formattedData;

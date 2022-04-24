@@ -8,6 +8,7 @@ export const useServiceCloudEnv = () => {
   const [osvcInterfaceUrl, setOsvcInterfaceUrl] = useState("");
   const [osvcInterfaceUrlREST, setOsvcInterfaceUrlREST] = useState("");
   const [osvcEnvironmentParams, setOsvcEnvironmentParams] = useState({});
+  const [osvcLoginName, setOsvcLoginName] = useState("");
 
   const getOsVcEnvValues = useCallback(async () => {
     const IExtensionProvider = await ORACLE_SERVICE_CLOUD.extension_loader.load("ExternalSearchResultsExt", "1");
@@ -16,6 +17,12 @@ export const useServiceCloudEnv = () => {
     const profileId = globalContext.getProfileId();
     const interfaceUrl = globalContext.getInterfaceUrl();
     const interfaceUrlREST = globalContext.getInterfaceServiceUrl("REST");
+    let userId;
+
+    globalContext.invokeAction("getLoggedInDetails").then((loggedInName) => {
+      const userDetails = loggedInName.result.find((i) => i != null);
+      userId = userDetails.login.split("@")[0].toUpperCase();
+    });
 
     setOsvcExtensionProv(IExtensionProvider);
     setOsvcGlobalContext(globalContext);
@@ -23,11 +30,13 @@ export const useServiceCloudEnv = () => {
     setOsvcProfileId(profileId);
     setOsvcInterfaceUrl(interfaceUrl);
     setOsvcInterfaceUrlREST(interfaceUrlREST);
+    setOsvcLoginName(userId);
     setOsvcEnvironmentParams({
       osvcExtensionProv,
       osvcGlobalContext,
       osvcSessionToken,
       osvcProfileId,
+      osvcLoginName,
       osvcInterfaceUrl,
       osvcInterfaceUrlREST,
     });

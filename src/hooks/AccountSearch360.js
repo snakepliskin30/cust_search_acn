@@ -985,7 +985,7 @@ function AccountSearchPerformance(accountNumber, sessionToken, profileId, interf
   });
 }
 
-export const callAccountSearchApi = (accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest) => {
+export const callAccountSearchApi = (accountNumber, extensionProvider, sessionToken, profileId, interfaceUrl, interfaceUrlRest, login) => {
   Promise.allSettled([
     searchOsvcAccount(accountNumber, interfaceUrlRest, sessionToken).then((id) => {
       if (id) {
@@ -995,7 +995,7 @@ export const callAccountSearchApi = (accountNumber, extensionProvider, sessionTo
         });
       }
     }),
-    AccountSearchPerformance(accountNumber, sessionToken, profileId, interfaceUrl, interfaceUrlRest, "X2RGDEZA"),
+    AccountSearchPerformance(accountNumber, sessionToken, profileId, interfaceUrl, interfaceUrlRest, login),
     searchOsvcAccount(accountNumber, interfaceUrlRest, sessionToken),
   ]).then((results) => {
     if (!results[2].value && results[1].value) {

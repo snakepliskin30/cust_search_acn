@@ -4,6 +4,7 @@ import Input from "../ui/Input";
 import InputNumber from "../ui/InputNumber";
 import ButtonSubmit from "../ui/ButtonSubmit";
 import ButtonCancel from "../ui/ButtonCancel";
+import Banner from "../ui/Banner";
 
 import classes from "./SearchForm.module.css";
 
@@ -79,28 +80,8 @@ const SearchForm = (props) => {
     if (city) setEnableDisable("street", "city", "zip");
     // if (state) setEnableDisable("street", "city", "state", "zip");
     if (zip) setEnableDisable("street", "city", "zip");
-    if (
-      !ssntin &&
-      !accountNumber &&
-      !phone &&
-      !firstName &&
-      !middleName &&
-      !lastName &&
-      !street &&
-      !city &&
-      !zip
-    ) {
-      setEnableDisable(
-        "ssntin",
-        "accountNumber",
-        "phone",
-        "firstName",
-        "middleName",
-        "lastName",
-        "street",
-        "city",
-        "zip"
-      );
+    if (!ssntin && !accountNumber && !phone && !firstName && !middleName && !lastName && !street && !city && !zip) {
+      setEnableDisable("ssntin", "accountNumber", "phone", "firstName", "middleName", "lastName", "street", "city", "zip");
       setSSNInvalid(false);
       setAccountNumberInvalid(false);
       setPhoneInvalid(false);
@@ -108,18 +89,7 @@ const SearchForm = (props) => {
       setLastNameInvalid(false);
       setStreetInvalid(false);
     }
-  }, [
-    ssntin,
-    accountNumber,
-    phone,
-    firstName,
-    middleName,
-    lastName,
-    street,
-    city,
-    state,
-    zip,
-  ]);
+  }, [ssntin, accountNumber, phone, firstName, middleName, lastName, street, city, state, zip]);
 
   const submitFormHandler = (e) => {
     e.preventDefault();
@@ -182,14 +152,7 @@ const SearchForm = (props) => {
         setStreetInvalid(false);
       }
     }
-    if (
-      !ssntin &&
-      !accountNumber &&
-      !phone &&
-      !firstName &&
-      !lastName &&
-      !street
-    ) {
+    if (!ssntin && !accountNumber && !phone && !firstName && !lastName && !street) {
       ++fieldsInvalid;
     }
     return fieldsInvalid === 0;
@@ -213,12 +176,23 @@ const SearchForm = (props) => {
     setStreetInvalid(false);
   };
 
+  const startServiceHandler = () => {
+    const osvcParams = props.getOsvcParams();
+    osvcParams.osvcExtensionProv.registerWorkspaceExtension((workspaceRecord) => {
+      workspaceRecord.createWorkspaceRecord("Contact");
+    });
+  };
+
   return (
-    <form
-      className={classes.main}
-      onSubmit={submitFormHandler}
-      autoComplete="off"
-    >
+    <form className={classes.main} onSubmit={submitFormHandler} autoComplete="off">
+      <div style={{ fontWeight: "bold", fontSize: "1.2rem" }}>Customer Record Lookup</div>
+      <div style={{ fontWeight: "bold", fontSize: "0.9rem", color: "#7f7f7f", marginTop: "-25px" }}>Find your customer in the system</div>
+
+      {props.searchResult.data.length === 0 && (props.searchResult.isCustSearch || props.searchResult.isPremiseSearch) && (
+        <Banner info={true} custom="Start Service" customClick={startServiceHandler}>
+          Search criteria you entered was not found. Click the Start Service to add the new customer.
+        </Banner>
+      )}
       <div className={classes.mainForm}>
         <div className={classes.custinfoform}>
           <InputNumber
@@ -251,67 +225,18 @@ const SearchForm = (props) => {
             invalid={accountNumberInvalid}
             invalidMessage="Account Number format xxxxx-xxxxx"
           />
-          <Input
-            label="First Name"
-            id="fname"
-            value={firstName}
-            onChange={setFirstName}
-            disabled={firstNameRO}
-            invalid={firstNameInvalid}
-            invalidMessage="First Name is a required field"
-          />
-          <Input
-            label="Middle Name"
-            id="mname"
-            value={middleName}
-            onChange={setMiddleName}
-            disabled={middleNameRO}
-          />
-          <Input
-            label="Last Name"
-            id="lname"
-            value={lastName}
-            onChange={setLastName}
-            disabled={lastNameRO}
-            invalid={lastNameInvalid}
-            invalidMessage="Last Name is a required field"
-          />
+          <Input label="First Name" id="fname" value={firstName} onChange={setFirstName} disabled={firstNameRO} invalid={firstNameInvalid} invalidMessage="First Name is a required field" />
+          <Input label="Middle Name" id="mname" value={middleName} onChange={setMiddleName} disabled={middleNameRO} />
+          <Input label="Last Name" id="lname" value={lastName} onChange={setLastName} disabled={lastNameRO} invalid={lastNameInvalid} invalidMessage="Last Name is a required field" />
         </div>
         <div className={classes.vertbar}></div>
         <div className={classes.premiseinfoform}>
           <div className={classes.premiseField}>
-            <Input
-              label="Street Address"
-              id="streetAddress"
-              value={street}
-              onChange={setStreet}
-              disabled={streetRO}
-              invalid={streetInvalid}
-              invalidMessage="Street Address is a required field"
-            />
+            <Input label="Street Address" id="streetAddress" value={street} onChange={setStreet} disabled={streetRO} invalid={streetInvalid} invalidMessage="Street Address is a required field" />
           </div>
-          <Input
-            label="City"
-            id="city"
-            value={city}
-            onChange={setCity}
-            disabled={cityRO}
-          />
-          <Input
-            label="State"
-            id="state"
-            value={state}
-            onChange={setState}
-            disabled={true}
-          />
-          <InputNumber
-            label="Zip"
-            id="zip"
-            options={{ blocks: [4] }}
-            value={zip}
-            onChange={setZip}
-            disabled={zipRO}
-          />
+          <Input label="City" id="city" value={city} onChange={setCity} disabled={cityRO} />
+          <Input label="State" id="state" value={state} onChange={setState} disabled={true} />
+          <InputNumber label="Zip" id="zip" options={{ blocks: [4] }} value={zip} onChange={setZip} disabled={zipRO} />
         </div>
       </div>
       <div className="btnGrp">
@@ -324,6 +249,8 @@ const SearchForm = (props) => {
 
 SearchForm.propTypes = {
   onSubmit: PropTypes.func,
+  getOsvcParams: PropTypes.func,
+  searchResult: PropTypes.object,
 };
 
 export default React.memo(SearchForm);

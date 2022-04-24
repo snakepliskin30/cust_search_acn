@@ -24,8 +24,7 @@
 
 a.url,
 a.url:visited {
-  font-weight: bold;
-  color: #1d82e3;
+  color: #169bd5;
   text-decoration: none;
 }
 
@@ -57,4 +56,9 @@ a.url:visited {
 input:disabled {
   background-color: #eee !important;
   border: 1px solid #aaa;
+}
+
+.vertbar {
+  border-left: 2px solid #ddd;
+  height: auto;
 }

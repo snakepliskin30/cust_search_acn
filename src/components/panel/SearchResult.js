@@ -10,7 +10,6 @@ import "datatables.net-rowgroup/js/dataTables.rowGroup.min.js";
 import $ from "jquery";
 
 import "datatables.net-dt/css/jquery.dataTables.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 import classes from "./SearchResult.module.css";
 
@@ -125,12 +124,8 @@ const SearchResult = (props) => {
   const contextMenuHandler = (e) => {
     console.log(e.target.closest("tr").dataset.accountnum);
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth
-      ? setXLoc(window.innerWidth - 210)
-      : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight
-      ? setYLoc(window.innerHeight - 70)
-      : setYLoc(e.clientY - 10);
+    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
     setSelectedRow({
       accountNo: e.target.closest("tr").dataset.accountnum,
       customerNo: e.target.closest("tr").dataset.customernum,
@@ -140,13 +135,15 @@ const SearchResult = (props) => {
   };
 
   useEffect(() => {
-    if (props.searchResult?.data.length > 0) {
+    if (props.searchResult?.data.length > 0 && (props.searchResult?.isCustSearch || props.searchResult?.isPremiseSearch)) {
       buildSearchTable();
     }
   }, [props.searchResult]);
 
   useEffect(() => {
-    buildSearchTable();
+    if (props.searchResult?.data.length > 0 && (props.searchResult?.isCustSearch || props.searchResult?.isPremiseSearch)) {
+      buildSearchTable();
+    }
   }, [expandAll]);
 
   const hideContextMenu = () => {
@@ -161,9 +158,7 @@ const SearchResult = (props) => {
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>
-          Expand All/Collapse All
-        </ButtonCancel>
+        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
         <table id="searchResultTable" className="table table-hover w-100">
           {/* <thead>
             <tr>

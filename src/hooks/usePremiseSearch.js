@@ -22,22 +22,13 @@ const capitalizePremise = (premise) => {
   const premArray = premise.split(",");
   let finalAddress = "";
   if (premArray.length >= 1) {
-    finalAddress += premArray[0].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
+    finalAddress += premArray[0].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
   if (premArray.length >= 2) {
-    finalAddress += `, ${premArray[1].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[1].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
   }
   if (premArray.length === 4) {
-    finalAddress += `, ${premArray[2].replace(
-      /\w\S*/g,
-      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    )}`;
+    finalAddress += `, ${premArray[2].replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())}`;
     finalAddress += `, ${premArray[3]}`;
   } else if (premArray.length === 3) {
     finalAddress += `, ${premArray[2]}`;
@@ -74,32 +65,12 @@ const formatData = (response) => {
   let data = custInfo.map((info) => ({ ...info, ...info.ServiceAddress }));
   data = data.map((info) => ({
     ...info,
-    fname: info.fullname
-      .trim()
-      .substring(0, info.fullname.trim().lastIndexOf(" ")),
-    lname: info.fullname
-      .trim()
-      .substring(info.fullname.trim().lastIndexOf(" ") + 1),
+    fname: info.fullname.trim().substring(0, info.fullname.trim().lastIndexOf(" ")),
+    lname: info.fullname.trim().substring(info.fullname.trim().lastIndexOf(" ") + 1),
     addressNotes: info.addressNotes ? info.addressNotes : " ",
-    accountNoFormatted: `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(
-      -5
-    )}`,
-    address: buildAddress(
-      info.addressLine1,
-      info.addressLine2,
-      info.city,
-      info.state,
-      info.zipCode
-    ),
-    groupByField: `${buildAddress(
-      info.addressLine1,
-      info.addressLine2,
-      info.city,
-      info.state,
-      info.zipCode
-    )}, ${info.addressNotes ? info.addressNotes : " "}, Premise Number ${
-      info.premiseNo
-    }`,
+    accountNoFormatted: `${info.accountNo.slice(0, 5)}-${info.accountNo.slice(-5)}`,
+    address: buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode),
+    groupByField: `${buildAddress(info.addressLine1, info.addressLine2, info.city, info.state, info.zipCode)}, ${info.addressNotes ? info.addressNotes : " "}, Premise Number ${info.premiseNo}`,
   }));
 
   return data;
@@ -110,30 +81,16 @@ export const usePremiseSearch = () => {
   const [isPremiseError, setIsPremiseError] = useState(false);
   const [isPremiseErrorMessage, setIsPremiseErrorMessage] = useState("");
 
-  const searchPremise = async (
-    address,
-    city,
-    state,
-    zip,
-    sessionToken,
-    profileId,
-    interfaceUrl
-  ) => {
+  const searchPremise = async (address, city, state, zip, sessionToken, profileId, interfaceUrl) => {
     let url = `${interfaceUrl}/php/custom/socoapicalls.php`;
-    if (process.env.NODE_ENV !== "production")
-      url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
+    if (process.env.NODE_ENV !== "production") url = `http://localhost:8181/osvc/socoapicalls_nocs.php`;
 
     setIsPremiseLoading(true);
     setIsPremiseError(false);
     setIsPremiseErrorMessage("");
     let apiTimeoutId;
     try {
-      const { Request, apiUrl } = buildRequestPayload(
-        address,
-        city,
-        state,
-        zip
-      );
+      const { Request, apiUrl } = buildRequestPayload(address, city, state, zip);
       const fetchController = new AbortController();
       const { signal } = fetchController;
       const timeOut = 60000;
@@ -158,7 +115,13 @@ export const usePremiseSearch = () => {
       });
 
       const data = await response.json();
-      const formattedData = formatData(data);
+      let formattedData = [];
+
+      if (data.Result.status.toLowerCase() === "ok") {
+        formattedData = formatData(data);
+      } else {
+        formattedData = [];
+      }
 
       setIsPremiseLoading(false);
       return formattedData;
