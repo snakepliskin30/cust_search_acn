@@ -115,6 +115,7 @@ const SearchResult = (props) => {
       oTable.draw(false);
     });
 
+    document.querySelector("thead").classList.add(`${classes.result_table_header}`);
     const rows = document.querySelectorAll("tr:not(.dtrg-start)");
     rows.forEach((e) => {
       e.addEventListener("contextmenu", contextMenuHandler);
@@ -159,7 +160,7 @@ const SearchResult = (props) => {
     <Fragment>
       <div className={classes.main}>
         <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
-        <table id="searchResultTable" className="table table-hover w-100">
+        <table id="searchResultTable" className="table table-hover w-100 mt-4">
           {/* <thead>
             <tr>
               <th>Premise Address</th>
