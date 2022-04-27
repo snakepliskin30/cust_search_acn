@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { callAccountSearchApi } from "../../hooks/AccountSearch360";
+
+import CustSearchContext from "../../store/cust-search-context";
 
 import classes from "./SearchContextMenu.module.css";
 
 const SearchContextMenu = (props) => {
+  const searchContext = useContext(CustSearchContext);
+
   const openContactHandler = () => {
-    const osvcParams = props.getOsvcParams();
+    const osvcParams = searchContext.getOsvcParams();
     if (props.selectedRow) {
       callAccountSearchApi(
         props.selectedRow.accountNo.replace("-", ""),
@@ -22,7 +26,7 @@ const SearchContextMenu = (props) => {
   const showModalShellModalClickHandler = () => {
     const customerNo = props.selectedRow.customerNo;
     const accountNo = props.selectedRow.accountNo;
-    props.showModalClick(customerNo, accountNo);
+    searchContext.showModalHandler(customerNo, accountNo);
   };
 
   const style = () => {
@@ -82,7 +86,7 @@ SearchContextMenu.propTypes = {
   showMenu: PropTypes.bool.isRequired,
   onMouseLeave: PropTypes.func.isRequired,
   getOsvcParams: PropTypes.func,
-  showModalClick: PropTypes.func,
+  showModalHandler: PropTypes.func,
 };
 
 export default SearchContextMenu;

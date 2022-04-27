@@ -10,6 +10,7 @@
 
 # production
 /build
+/cust_search_acn
 
 # misc
 .DS_Store
@@ -24,3 +25,5 @@ yarn-error.log*
 
 # cust_search
 *.zip
+
+package-lock.json

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, useContext } from "react";
 import PropTypes from "prop-types";
 import SearchContextMenu from "../layout/SearchContextMenu";
 import ButtonCancel from "../ui/ButtonCancel";
@@ -9,11 +9,14 @@ import "datatables.net/js/jquery.dataTables";
 import "datatables.net-rowgroup/js/dataTables.rowGroup.min.js";
 import $ from "jquery";
 
+import CustSearchContext from "../../store/cust-search-context";
+
 import "datatables.net-dt/css/jquery.dataTables.css";
 
 import classes from "./SearchResult.module.css";
 
-const SearchResult = (props) => {
+const SearchResult = () => {
+  const searchContext = useContext(CustSearchContext);
   const [selectedRow, setSelectedRow] = useState({});
   const [xLoc, setXLoc] = useState(0);
   const [yLoc, setYLoc] = useState(0);
@@ -23,7 +26,7 @@ const SearchResult = (props) => {
   const buildSearchTable = () => {
     let columns;
     let columnDefs;
-    if (props.searchResult.isCustSearch) {
+    if (searchContext.searchResult.isCustSearch) {
       columns = [
         { data: "address", title: "Premise Address" },
         { data: "addressNotes", title: "Address Notes" },
@@ -70,7 +73,7 @@ const SearchResult = (props) => {
       paging: false,
       bFilter: false,
       bInfo: false,
-      data: props.searchResult.data,
+      data: searchContext.searchResult.data,
       columns: columns,
       columnDefs: columnDefs,
       language: {
@@ -115,7 +118,9 @@ const SearchResult = (props) => {
       oTable.draw(false);
     });
 
-    document.querySelector("thead").classList.add(`${classes.result_table_header}`);
+    document
+      .querySelector("thead")
+      .classList.add(`${classes.result_table_header}`);
     const rows = document.querySelectorAll("tr:not(.dtrg-start)");
     rows.forEach((e) => {
       e.addEventListener("contextmenu", contextMenuHandler);
@@ -125,8 +130,12 @@ const SearchResult = (props) => {
   const contextMenuHandler = (e) => {
     console.log(e.target.closest("tr").dataset.accountnum);
     e.preventDefault();
-    e.clientX + 200 > window.innerWidth ? setXLoc(window.innerWidth - 210) : setXLoc(e.clientX - 10);
-    e.clientY + 70 > window.innerHeight ? setYLoc(window.innerHeight - 70) : setYLoc(e.clientY - 10);
+    e.clientX + 200 > window.innerWidth
+      ? setXLoc(window.innerWidth - 210)
+      : setXLoc(e.clientX - 10);
+    e.clientY + 70 > window.innerHeight
+      ? setYLoc(window.innerHeight - 70)
+      : setYLoc(e.clientY - 10);
     setSelectedRow({
       accountNo: e.target.closest("tr").dataset.accountnum,
       customerNo: e.target.closest("tr").dataset.customernum,
@@ -136,13 +145,21 @@ const SearchResult = (props) => {
   };
 
   useEffect(() => {
-    if (props.searchResult?.data.length > 0 && (props.searchResult?.isCustSearch || props.searchResult?.isPremiseSearch)) {
+    if (
+      searchContext.searchResult?.data.length > 0 &&
+      (searchContext.searchResult?.isCustSearch ||
+        searchContext.searchResult?.isPremiseSearch)
+    ) {
       buildSearchTable();
     }
-  }, [props.searchResult]);
+  }, [searchContext.searchResult]);
 
   useEffect(() => {
-    if (props.searchResult?.data.length > 0 && (props.searchResult?.isCustSearch || props.searchResult?.isPremiseSearch)) {
+    if (
+      searchContext.searchResult?.data.length > 0 &&
+      (searchContext.searchResult?.isCustSearch ||
+        searchContext.searchResult?.isPremiseSearch)
+    ) {
       buildSearchTable();
     }
   }, [expandAll]);
@@ -155,35 +172,18 @@ const SearchResult = (props) => {
     setExpandAll((current) => !current);
   };
 
-  if (props.searchResult?.data.length === 0) return <div>No Result</div>;
+  if (searchContext.searchResult?.data.length === 0)
+    return <div>No Result</div>;
   return (
     <Fragment>
       <div className={classes.main}>
-        <ButtonCancel onClick={expandAllHandler}>Expand All/Collapse All</ButtonCancel>
-        <table id="searchResultTable" className="table table-hover w-100 mt-4">
-          {/* <thead>
-            <tr>
-              <th>Premise Address</th>
-              <th>Address Notes</th>
-              <th>Account Number</th>
-              <th>Account Status</th>
-              <th>Revenue Class</th>
-              <th>Group By</th>
-            </tr>
-          </thead> */}
-          {/* <tbody>
-            {props.searchResult.map((result, index) => (
-              <tr key={index} data-row-info={JSON.stringify(result)}>
-                <td>{result.address}</td>
-                <td>{result.addressNotes}</td>
-                <td>{result.accountNo}</td>
-                <td>{result.accountStatus}</td>
-                <td>{result.revenueClass}</td>
-                <td className="d-none">{result.groupByField}</td>
-              </tr>
-            ))}
-          </tbody> */}
-        </table>
+        <ButtonCancel onClick={expandAllHandler}>
+          Expand All/Collapse All
+        </ButtonCancel>
+        <table
+          id="searchResultTable"
+          className="table table-hover w-100 mt-4"
+        ></table>
       </div>
       <SearchContextMenu
         xLoc={xLoc}
@@ -191,9 +191,9 @@ const SearchResult = (props) => {
         selectedRow={selectedRow}
         showMenu={showMenu}
         onMouseLeave={hideContextMenu}
-        getOsvcParams={props.getOsvcParams}
-        showModalClick={props.showModalClick}
-        showModal={props.showModal}
+        // getOsvcParams={props.getOsvcParams}
+        // showModalClick={props.showModalClick}
+        // showModal={props.showModal}
       />
     </Fragment>
   );

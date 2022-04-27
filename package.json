@@ -25,7 +25,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint src/***/*.js"
+    "lint": "eslint src/***/*.js",
+    "craco-build": "craco build",
+    "craco-start": "craco start"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^6.4.3",
     "eslint": "^8.13.0",
     "eslint-plugin-react": "^7.29.4"
   }

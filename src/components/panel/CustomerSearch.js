@@ -12,6 +12,8 @@ import { useNameSearch } from "../../hooks/useNameSearch";
 import { usePremiseSearch } from "../../hooks/usePremiseSearch";
 import gpc_logo from "../../images/gp_logo.png";
 
+import CustSearchContext from "../../store/cust-search-context";
+
 import "./CustomerSearch.css";
 
 const params = {
@@ -33,12 +35,33 @@ const CustomerSearch = () => {
   const [showResult, setShowResult] = useState(false);
   const [searchParams, setSearchParams] = useState(params);
   const [searchResult, setSearchResult] = useState({ data: ["Initial"] });
-  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } = useSSNSearch();
-  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } = usePhoneSearch();
-  const { isNameLoading, isNameError, isNameErrorMessage, searchName } = useNameSearch();
-  const { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise } = usePremiseSearch();
-  const { osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcLoginName, osvcInterfaceUrl, osvcInterfaceUrlREST, getOsVcEnvValues } = useServiceCloudEnv();
-  const { isAccountLoading, isAccountError, isAccountErrorMessage, searchAccount } = useAccountSearch();
+  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } =
+    useSSNSearch();
+  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } =
+    usePhoneSearch();
+  const { isNameLoading, isNameError, isNameErrorMessage, searchName } =
+    useNameSearch();
+  const {
+    isPremiseLoading,
+    isPremiseError,
+    isPremiseErrorMessage,
+    searchPremise,
+  } = usePremiseSearch();
+  const {
+    osvcExtensionProv,
+    osvcSessionToken,
+    osvcProfileId,
+    osvcLoginName,
+    osvcInterfaceUrl,
+    osvcInterfaceUrlREST,
+    getOsVcEnvValues,
+  } = useServiceCloudEnv();
+  const {
+    isAccountLoading,
+    isAccountError,
+    isAccountErrorMessage,
+    searchAccount,
+  } = useAccountSearch();
   const [showModal, setShowModal] = useState(false);
   const [modalFields, setModalFields] = useState({});
 
@@ -52,24 +75,59 @@ const CustomerSearch = () => {
     sessionStorage.removeItem("shell_ssn_nongpc_details");
 
     if (params.accountNumber) {
-      const data = await searchAccount(params.accountNumber.replace("-", ""), osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcInterfaceUrlREST, osvcLoginName);
+      const data = await searchAccount(
+        params.accountNumber.replace("-", ""),
+        osvcExtensionProv,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl,
+        osvcInterfaceUrlREST,
+        osvcLoginName
+      );
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("accountNumber");
     }
     if (params.ssntin) {
-      const data = await searchSSN(params.ssntin, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
+      const data = await searchSSN(
+        params.ssntin,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl
+      );
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("ssn");
     } else if (params.phone) {
-      const data = await searchPhone(params.phone, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcLoginName);
+      const data = await searchPhone(
+        params.phone,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl,
+        osvcLoginName
+      );
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("phone");
     } else if (params.firstName || params.lastName) {
-      const data = await searchName(params.firstName, params.middleName, params.lastName, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcLoginName);
+      const data = await searchName(
+        params.firstName,
+        params.middleName,
+        params.lastName,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl,
+        osvcLoginName
+      );
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("name");
     } else if (params.street) {
-      const data = await searchPremise(params.street, params.city, params.state, params.zip, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
+      const data = await searchPremise(
+        params.street,
+        params.city,
+        params.state,
+        params.zip,
+        osvcSessionToken,
+        osvcProfileId,
+        osvcInterfaceUrl
+      );
       setSearchResult({ data: data, isPremiseSearch: true });
       setSearchField("premise");
     }
@@ -101,10 +159,17 @@ const CustomerSearch = () => {
       osvcExtensionProv,
       osvcSessionToken,
       osvcProfileId,
+      osvcLoginName,
       osvcInterfaceUrl,
       osvcInterfaceUrlREST,
     };
-  }, [osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcInterfaceUrlREST]);
+  }, [
+    osvcExtensionProv,
+    osvcSessionToken,
+    osvcProfileId,
+    osvcInterfaceUrl,
+    osvcInterfaceUrlREST,
+  ]);
 
   useEffect(() => {
     if (searchResult?.data[0] === "Initial") {
@@ -122,37 +187,71 @@ const CustomerSearch = () => {
 
   return (
     <div className="main">
-      <Modal showModal={showModal} hideModalClick={hideModalHandler} searchField={searchField} modalFields={modalFields} getOsvcParams={getOsvcParams} />
-      {(isAccountLoading || isSSNLoading || isPhoneLoading || isNameLoading || isPremiseLoading) && <Spinner />}
-      {(isAccountError || isNameError || isPhoneError || isPremiseError || isSSNError) &&
-        (isAccountErrorMessage || isNameErrorMessage || isPhoneErrorMessage || isPremiseErrorMessage || isSSNErrorMessage)}
-      <div className="cust_search_header">
-        <img src={gpc_logo} className="logo" />
-        <div className="external_url">
-          <a className="url" href="#">
-            OCC Support Tool
-          </a>
-          <div className="vertbar"></div>
-          <a className="url" href="#">
-            GIS Map
-          </a>
-          <div className="vertbar"></div>
-          <a className="url" href="#">
-            Office Directory
-          </a>
+      <CustSearchContext.Provider
+        value={{
+          searchParams,
+          searchResult,
+          searchHandler,
+          updateSearchParams,
+          showModalHandler,
+          showModal,
+          getOsvcParams,
+        }}
+      >
+        <Modal
+          showModal={showModal}
+          hideModalClick={hideModalHandler}
+          searchField={searchField}
+          modalFields={modalFields}
+          getOsvcParams={getOsvcParams}
+        />
+        {(isAccountLoading ||
+          isSSNLoading ||
+          isPhoneLoading ||
+          isNameLoading ||
+          isPremiseLoading) && <Spinner />}
+        {(isAccountError ||
+          isNameError ||
+          isPhoneError ||
+          isPremiseError ||
+          isSSNError) &&
+          (isAccountErrorMessage ||
+            isNameErrorMessage ||
+            isPhoneErrorMessage ||
+            isPremiseErrorMessage ||
+            isSSNErrorMessage)}
+        <div className="cust_search_header">
+          <img src={gpc_logo} className="logo" />
+          <div className="external_url">
+            <a className="url" href="#">
+              OCC Support Tool
+            </a>
+            <div className="vertbar"></div>
+            <a className="url" href="#">
+              GIS Map
+            </a>
+            <div className="vertbar"></div>
+            <a className="url" href="#">
+              Office Directory
+            </a>
+          </div>
         </div>
-      </div>
-      <div style={{ border: "2px solid #1D82E3" }}></div>
-      <div className="cust_search_body">
-        <Accordion title="Search" id="search" onClick={showFormHandler}>
-          {showForm && <SearchForm onSubmit={searchHandler} getOsvcParams={getOsvcParams} searchResult={searchResult} updateSearchParams={updateSearchParams} searchParams={searchParams} />}
-        </Accordion>
-        {searchResult?.data.length > 0 && (
-          <Accordion title="Search Result" id="searchResult" onClick={showResultHandler}>
-            {showResult && <SearchResult searchResult={searchResult} getOsvcParams={getOsvcParams} showModalClick={showModalHandler} showModal={showModal} />}
+        <div style={{ border: "2px solid #1D82E3" }}></div>
+        <div className="cust_search_body">
+          <Accordion title="Search" id="search" onClick={showFormHandler}>
+            {showForm && <SearchForm />}
           </Accordion>
-        )}
-      </div>
+          {searchResult?.data.length > 0 && (
+            <Accordion
+              title="Search Result"
+              id="searchResult"
+              onClick={showResultHandler}
+            >
+              {showResult && <SearchResult />}
+            </Accordion>
+          )}
+        </div>
+      </CustSearchContext.Provider>
     </div>
   );
 };
