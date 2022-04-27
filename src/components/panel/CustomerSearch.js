@@ -14,10 +14,24 @@ import gpc_logo from "../../images/gp_logo.png";
 
 import "./CustomerSearch.css";
 
+const params = {
+  ssn: "",
+  phone: "",
+  accountNumber: "",
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  street: "",
+  city: "",
+  state: "GA",
+  zip: "",
+};
+
 const CustomerSearch = () => {
   const [showForm, setShowForm] = useState(true);
   const [searchField, setSearchField] = useState("");
   const [showResult, setShowResult] = useState(false);
+  const [searchParams, setSearchParams] = useState(params);
   const [searchResult, setSearchResult] = useState({ data: ["Initial"] });
   const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } = useSSNSearch();
   const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } = usePhoneSearch();
@@ -28,7 +42,7 @@ const CustomerSearch = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalFields, setModalFields] = useState({});
 
-  const searchAddressHander = async (params) => {
+  const searchHandler = async (params) => {
     // Reset Session Storages
     sessionStorage.removeItem("start_service_modal_customer_number");
     sessionStorage.removeItem("ssn_value_from_modal");
@@ -70,11 +84,15 @@ const CustomerSearch = () => {
     setShowModal(false);
   };
 
+  const updateSearchParams = useCallback((searchParams) => {
+    setSearchParams(searchParams);
+  }, []);
+
   const showResultHandler = useCallback(() => {
     setShowResult((current) => !current);
   }, []);
 
-  const showFormtHandler = useCallback(() => {
+  const showFormHandler = useCallback(() => {
     setShowForm((current) => !current);
   }, []);
 
@@ -89,13 +107,17 @@ const CustomerSearch = () => {
   }, [osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcInterfaceUrlREST]);
 
   useEffect(() => {
-    if (searchResult?.data.length > 0) {
+    if (searchResult?.data[0] === "Initial") {
+      setShowForm(true);
+    } else if (searchResult?.data.length > 0) {
+      setShowForm(false);
       setShowResult(true);
     }
   }, [searchResult]);
 
   useEffect(() => {
     getOsVcEnvValues();
+    showResultHandler(false);
   }, [getOsVcEnvValues]);
 
   return (
@@ -122,8 +144,8 @@ const CustomerSearch = () => {
       </div>
       <div style={{ border: "2px solid #1D82E3" }}></div>
       <div className="cust_search_body">
-        <Accordion title="Search" id="search" onClick={showFormtHandler}>
-          {showForm && <SearchForm onSubmit={searchAddressHander} getOsvcParams={getOsvcParams} searchResult={searchResult} />}
+        <Accordion title="Search" id="search" onClick={showFormHandler}>
+          {showForm && <SearchForm onSubmit={searchHandler} getOsvcParams={getOsvcParams} searchResult={searchResult} updateSearchParams={updateSearchParams} searchParams={searchParams} />}
         </Accordion>
         {searchResult?.data.length > 0 && (
           <Accordion title="Search Result" id="searchResult" onClick={showResultHandler}>

@@ -9,16 +9,16 @@ import Banner from "../ui/Banner";
 import classes from "./SearchForm.module.css";
 
 const SearchForm = (props) => {
-  const [ssntin, setSSNTin] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [phone, setPhone] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [middleName, setMiddleName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [street, setStreet] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("GA");
-  const [zip, setZip] = useState("");
+  const [ssntin, setSSNTin] = useState(props.searchParams.ssn);
+  const [accountNumber, setAccountNumber] = useState(props.searchParams.accountNumber);
+  const [phone, setPhone] = useState(props.searchParams.phone);
+  const [firstName, setFirstName] = useState(props.searchParams.firstName);
+  const [middleName, setMiddleName] = useState(props.searchParams.middleName);
+  const [lastName, setLastName] = useState(props.searchParams.lastName);
+  const [street, setStreet] = useState(props.searchParams.street);
+  const [city, setCity] = useState(props.searchParams.city);
+  const [state, setState] = useState(props.searchParams.state);
+  const [zip, setZip] = useState(props.searchParams.zip);
   const [ssntinRO, setSSNTinRO] = useState(false);
   const [accountNumberRO, setAccountNumberRO] = useState(false);
   const [phoneRO, setPhoneRO] = useState(false);
@@ -89,6 +89,19 @@ const SearchForm = (props) => {
       setLastNameInvalid(false);
       setStreetInvalid(false);
     }
+    const params = {
+      ssn: ssntin,
+      phone,
+      accountNumber,
+      firstName,
+      middleName,
+      lastName,
+      street,
+      city,
+      state,
+      zip,
+    };
+    props.updateSearchParams(params);
   }, [ssntin, accountNumber, phone, firstName, middleName, lastName, street, city, state, zip]);
 
   const submitFormHandler = (e) => {
@@ -251,6 +264,8 @@ SearchForm.propTypes = {
   onSubmit: PropTypes.func,
   getOsvcParams: PropTypes.func,
   searchResult: PropTypes.object,
+  searchParams: PropTypes.object,
+  updateSearchParams: PropTypes.func,
 };
 
 export default React.memo(SearchForm);
