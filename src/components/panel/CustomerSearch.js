@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Accordion from "../layout/Accordion";
+// import Accordion from "../layout/Accordion";
 import SearchForm from "./SearchForm";
 import SearchResult from "./SearchResult";
 import Spinner from "../ui/Spinner";
@@ -11,6 +11,7 @@ import { usePhoneSearch } from "../../hooks/usePhoneSearch";
 import { useNameSearch } from "../../hooks/useNameSearch";
 import { usePremiseSearch } from "../../hooks/usePremiseSearch";
 import gpc_logo from "../../images/gp_logo.png";
+import { Accordion } from "react-bootstrap";
 
 import CustSearchContext from "../../store/cust-search-context";
 
@@ -30,38 +31,20 @@ const params = {
 };
 
 const CustomerSearch = () => {
-  const [showForm, setShowForm] = useState(true);
+  const x = "test";
+  const y = "test2";
+  console.log(x, y);
+  // const [showForm, setShowForm] = useState(true);
   const [searchField, setSearchField] = useState("");
-  const [showResult, setShowResult] = useState(false);
+  // const [showResult, setShowResult] = useState(false);
   const [searchParams, setSearchParams] = useState(params);
   const [searchResult, setSearchResult] = useState({ data: ["Initial"] });
-  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } =
-    useSSNSearch();
-  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } =
-    usePhoneSearch();
-  const { isNameLoading, isNameError, isNameErrorMessage, searchName } =
-    useNameSearch();
-  const {
-    isPremiseLoading,
-    isPremiseError,
-    isPremiseErrorMessage,
-    searchPremise,
-  } = usePremiseSearch();
-  const {
-    osvcExtensionProv,
-    osvcSessionToken,
-    osvcProfileId,
-    osvcLoginName,
-    osvcInterfaceUrl,
-    osvcInterfaceUrlREST,
-    getOsVcEnvValues,
-  } = useServiceCloudEnv();
-  const {
-    isAccountLoading,
-    isAccountError,
-    isAccountErrorMessage,
-    searchAccount,
-  } = useAccountSearch();
+  const { isSSNLoading, isSSNError, isSSNErrorMessage, searchSSN } = useSSNSearch();
+  const { isPhoneLoading, isPhoneError, isPhoneErrorMessage, searchPhone } = usePhoneSearch();
+  const { isNameLoading, isNameError, isNameErrorMessage, searchName } = useNameSearch();
+  const { isPremiseLoading, isPremiseError, isPremiseErrorMessage, searchPremise } = usePremiseSearch();
+  const { osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcLoginName, osvcInterfaceUrl, osvcInterfaceUrlREST, getOsVcEnvValues } = useServiceCloudEnv();
+  const { isAccountLoading, isAccountError, isAccountErrorMessage, searchAccount } = useAccountSearch();
   const [showModal, setShowModal] = useState(false);
   const [modalFields, setModalFields] = useState({});
 
@@ -75,59 +58,24 @@ const CustomerSearch = () => {
     sessionStorage.removeItem("shell_ssn_nongpc_details");
 
     if (params.accountNumber) {
-      const data = await searchAccount(
-        params.accountNumber.replace("-", ""),
-        osvcExtensionProv,
-        osvcSessionToken,
-        osvcProfileId,
-        osvcInterfaceUrl,
-        osvcInterfaceUrlREST,
-        osvcLoginName
-      );
+      const data = await searchAccount(params.accountNumber.replace("-", ""), osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcInterfaceUrlREST, osvcLoginName);
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("accountNumber");
     }
     if (params.ssntin) {
-      const data = await searchSSN(
-        params.ssntin,
-        osvcSessionToken,
-        osvcProfileId,
-        osvcInterfaceUrl
-      );
+      const data = await searchSSN(params.ssntin, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("ssn");
     } else if (params.phone) {
-      const data = await searchPhone(
-        params.phone,
-        osvcSessionToken,
-        osvcProfileId,
-        osvcInterfaceUrl,
-        osvcLoginName
-      );
+      const data = await searchPhone(params.phone, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcLoginName);
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("phone");
     } else if (params.firstName || params.lastName) {
-      const data = await searchName(
-        params.firstName,
-        params.middleName,
-        params.lastName,
-        osvcSessionToken,
-        osvcProfileId,
-        osvcInterfaceUrl,
-        osvcLoginName
-      );
+      const data = await searchName(params.firstName, params.middleName, params.lastName, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcLoginName);
       setSearchResult({ data: data, isCustSearch: true });
       setSearchField("name");
     } else if (params.street) {
-      const data = await searchPremise(
-        params.street,
-        params.city,
-        params.state,
-        params.zip,
-        osvcSessionToken,
-        osvcProfileId,
-        osvcInterfaceUrl
-      );
+      const data = await searchPremise(params.street, params.city, params.state, params.zip, osvcSessionToken, osvcProfileId, osvcInterfaceUrl);
       setSearchResult({ data: data, isPremiseSearch: true });
       setSearchField("premise");
     }
@@ -146,13 +94,13 @@ const CustomerSearch = () => {
     setSearchParams(searchParams);
   }, []);
 
-  const showResultHandler = useCallback(() => {
-    setShowResult((current) => !current);
-  }, []);
+  // const showResultHandler = useCallback(() => {
+  //   setShowResult((current) => !current);
+  // }, []);
 
-  const showFormHandler = useCallback(() => {
-    setShowForm((current) => !current);
-  }, []);
+  // const showFormHandler = useCallback(() => {
+  //   setShowForm((current) => !current);
+  // }, []);
 
   const getOsvcParams = useCallback(() => {
     return {
@@ -163,26 +111,20 @@ const CustomerSearch = () => {
       osvcInterfaceUrl,
       osvcInterfaceUrlREST,
     };
-  }, [
-    osvcExtensionProv,
-    osvcSessionToken,
-    osvcProfileId,
-    osvcInterfaceUrl,
-    osvcInterfaceUrlREST,
-  ]);
+  }, [osvcExtensionProv, osvcSessionToken, osvcProfileId, osvcInterfaceUrl, osvcInterfaceUrlREST]);
 
   useEffect(() => {
-    if (searchResult?.data[0] === "Initial") {
-      setShowForm(true);
-    } else if (searchResult?.data.length > 0) {
-      setShowForm(false);
-      setShowResult(true);
-    }
+    // if (searchResult?.data[0] === "Initial") {
+    //   setShowForm(true);
+    // } else if (searchResult?.data.length > 0) {
+    //   setShowForm(false);
+    //   setShowResult(true);
+    // }
   }, [searchResult]);
 
   useEffect(() => {
     getOsVcEnvValues();
-    showResultHandler(false);
+    // showResultHandler(false);
   }, [getOsVcEnvValues]);
 
   return (
@@ -198,28 +140,10 @@ const CustomerSearch = () => {
           getOsvcParams,
         }}
       >
-        <Modal
-          showModal={showModal}
-          hideModalClick={hideModalHandler}
-          searchField={searchField}
-          modalFields={modalFields}
-          getOsvcParams={getOsvcParams}
-        />
-        {(isAccountLoading ||
-          isSSNLoading ||
-          isPhoneLoading ||
-          isNameLoading ||
-          isPremiseLoading) && <Spinner />}
-        {(isAccountError ||
-          isNameError ||
-          isPhoneError ||
-          isPremiseError ||
-          isSSNError) &&
-          (isAccountErrorMessage ||
-            isNameErrorMessage ||
-            isPhoneErrorMessage ||
-            isPremiseErrorMessage ||
-            isSSNErrorMessage)}
+        <Modal showModal={showModal} hideModalClick={hideModalHandler} searchField={searchField} modalFields={modalFields} getOsvcParams={getOsvcParams} />
+        {(isAccountLoading || isSSNLoading || isPhoneLoading || isNameLoading || isPremiseLoading) && <Spinner />}
+        {(isAccountError || isNameError || isPhoneError || isPremiseError || isSSNError) &&
+          (isAccountErrorMessage || isNameErrorMessage || isPhoneErrorMessage || isPremiseErrorMessage || isSSNErrorMessage)}
         <div className="cust_search_header">
           <img src={gpc_logo} className="logo" />
           <div className="external_url">
@@ -238,18 +162,29 @@ const CustomerSearch = () => {
         </div>
         <div style={{ border: "2px solid #1D82E3" }}></div>
         <div className="cust_search_body">
-          <Accordion title="Search" id="search" onClick={showFormHandler}>
+          {/* <Accordion title="Search" id="search" onClick={showFormHandler}>
             {showForm && <SearchForm />}
           </Accordion>
           {searchResult?.data.length > 0 && (
-            <Accordion
-              title="Search Result"
-              id="searchResult"
-              onClick={showResultHandler}
-            >
+            <Accordion title="Search Result" id="searchResult" onClick={showResultHandler}>
               {showResult && <SearchResult />}
             </Accordion>
-          )}
+          )} */}
+
+          <Accordion defaultActiveKey="0">
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>Search</Accordion.Header>
+              <Accordion.Body>
+                <SearchForm />
+              </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="1">
+              <Accordion.Header>Search Result</Accordion.Header>
+              <Accordion.Body>
+                <SearchResult />
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
         </div>
       </CustSearchContext.Provider>
     </div>
